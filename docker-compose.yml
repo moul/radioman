@@ -1,0 +1,8 @@
+liquidman:
+  build: .
+  links:
+  - liquidsoap
+
+liquidsoap:
+  image: moul/liquidsoap
+  command: liquidsoap 'output.dummy(blank())'
