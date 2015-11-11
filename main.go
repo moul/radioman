@@ -148,7 +148,20 @@ func updatePlaylistsRoutine(db *Database) {
 					logrus.Warnf("walker error: %v", err)
 					continue
 				}
-				playlist.NewTrack(walker.Path())
+				stat := walker.Stat()
+
+				if stat.IsDir() {
+					switch stat.Name() {
+					case ".git", "bower_components":
+						walker.SkipDir()
+					}
+				} else {
+					switch stat.Name() {
+					case ".DS_Store":
+						continue
+					}
+					playlist.NewTrack(walker.Path())
+				}
 			}
 
 			logrus.Infof("Playlist %q updated, %d tracks", playlist.Name, len(playlist.Tracks))
