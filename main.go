@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -54,7 +55,11 @@ func main() {
 	router.GET("/api/playlists", playlistsEndpoint)
 	router.GET("/api/playlists/:name", playlistDetailEndpoint)
 
-	router.Run(":8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	router.Run(fmt.Sprintf(":%s", port))
 }
 
 func playlistsEndpoint(c *gin.Context) {
