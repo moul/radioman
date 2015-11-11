@@ -8,6 +8,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
+	"github.com/kr/fs"
 )
 
 type Playlist struct {
@@ -16,6 +17,7 @@ type Playlist struct {
 	CreationDate     time.Time `json:"creation_date"`
 	ModificationDate time.Time `json:"modification_date"`
 	Tracks           []*Track  `json:"tracks"`
+	Status           string    `json:"status"`
 }
 
 type Track struct {
@@ -28,6 +30,14 @@ type Database struct {
 }
 
 var DB Database
+
+func (p *Playlist) NewTrack(path string) (*Track, error) {
+	track := &Track{
+		Path: path,
+	}
+	p.Tracks = append(p.Tracks, track)
+	return track, nil
+}
 
 func init() {
 	DB.Playlists = make([]*Playlist, 0)
@@ -46,6 +56,7 @@ func (db *Database) NewPlaylist(name string) (*Playlist, error) {
 		CreationDate:     time.Now(),
 		ModificationDate: time.Now(),
 		Tracks:           make([]*Track, 0),
+		Status:           "New",
 	}
 	DB.Playlists = append(DB.Playlists, playlist)
 	return playlist, nil
@@ -102,10 +113,28 @@ func main() {
 func updatePlaylistsRoutine(db *Database) {
 	for {
 		for _, playlist := range db.Playlists {
+			if playlist.Path == "" {
+				logrus.Debugf("Playlist %q is not dynamic, skipping update", playlist.Name)
+				continue
+			}
+
 			logrus.Infof("Updating playlist %q", playlist.Name)
+			playlist.Status = "Updating"
+
+			walker := fs.Walk(playlist.Path)
+			for walker.Step() {
+				if err := walker.Err(); err != nil {
+					logrus.Warnf("walker error: %v", err)
+					continue
+				}
+				playlist.NewTrack(walker.Path())
+			}
+
+			logrus.Infof("Playlist %q updated, %d tracks", playlist.Name, len(playlist.Tracks))
+			playlist.Status = "Ready"
 			playlist.ModificationDate = time.Now()
 		}
-		time.Sleep(10 * time.Second)
+		time.Sleep(5 * time.Minute)
 	}
 }
 
