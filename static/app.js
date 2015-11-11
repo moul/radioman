@@ -1,13 +1,13 @@
-var liquidmanApp = angular.module('liquidmanApp', ['ngRoute']);
+var radiomanApp = angular.module('radiomanApp', ['ngRoute']);
 
-liquidmanApp.controller('MainCtrl', function($scope, $route, $routeParams, $location) {
+radiomanApp.controller('MainCtrl', function($scope, $route, $routeParams, $location) {
   $scope.$route = $route;
   $scope.$location = $location;
   $scope.$routeParams = $routeParams;
   $scope.basehref = document.location.protocol + '//' + document.location.host;
 });
 
-liquidmanApp.config(function($routeProvider, $locationProvider) {
+radiomanApp.config(function($routeProvider, $locationProvider) {
   $routeProvider
     .when('/playlists', {
       templateUrl: '/static/playlists.html',
@@ -24,16 +24,16 @@ liquidmanApp.config(function($routeProvider, $locationProvider) {
   // $locationProvider.html5Mode(true);
 });
 
-liquidmanApp.controller('HomeCtrl', function($scope, $http, $routeParams) {
+radiomanApp.controller('HomeCtrl', function($scope, $http, $routeParams) {
 });
 
-liquidmanApp.controller('PlaylistListCtrl', function($scope, $http, $routeParams) {
+radiomanApp.controller('PlaylistListCtrl', function($scope, $http, $routeParams) {
   $http.get('/api/playlists').success(function (data) {
     $scope.playlists = data.playlists;
   });
 });
 
-liquidmanApp.controller('PlaylistViewCtrl', function($scope, $http, $routeParams) {
+radiomanApp.controller('PlaylistViewCtrl', function($scope, $http, $routeParams) {
   $http.get('/api/playlists/' + $routeParams.name).success(function (data) {
     $scope.playlist = data.playlist;
   });

@@ -1,7 +1,5 @@
-liquidman:
+radioman:
   build: .
-  links:
-  - liquidsoap
 
 liquidsoap:
   image: moul/liquidsoap
