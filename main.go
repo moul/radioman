@@ -107,6 +107,7 @@ func main() {
 
 	router.GET("/api/playlists", playlistsEndpoint)
 	router.GET("/api/playlists/:name", playlistDetailEndpoint)
+	router.GET("/api/playlists/:name/tracks", playlistTracksEndpoint)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -163,5 +164,19 @@ func playlistDetailEndpoint(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"playlist": playlist,
+	})
+}
+
+func playlistTracksEndpoint(c *gin.Context) {
+	name := c.Param("name")
+	playlist, err := DB.GetPlaylistByName(name)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"tracks": playlist.Tracks,
 	})
 }

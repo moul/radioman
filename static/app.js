@@ -37,4 +37,7 @@ radiomanApp.controller('PlaylistViewCtrl', function($scope, $http, $routeParams)
   $http.get('/api/playlists/' + $routeParams.name).success(function (data) {
     $scope.playlist = data.playlist;
   });
+  $http.get('/api/playlists/' + $routeParams.name + '/tracks').success(function (data) {
+    $scope.tracks = data.tracks;
+  });
 });
