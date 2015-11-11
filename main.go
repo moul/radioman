@@ -16,8 +16,11 @@ type Playlist struct {
 	Path             string    `json:"path"`
 	CreationDate     time.Time `json:"creation_date"`
 	ModificationDate time.Time `json:"modification_date"`
-	Tracks           []*Track  `json:"tracks"`
 	Status           string    `json:"status"`
+	Stats            struct {
+		Tracks int `json:"tracks"`
+	} `json:"stats"`
+	Tracks map[string]*Track `json:"-"`
 }
 
 type Track struct {
@@ -32,10 +35,15 @@ type Database struct {
 var DB Database
 
 func (p *Playlist) NewTrack(path string) (*Track, error) {
+	if track, found := p.Tracks[path]; found {
+		return track, nil
+	}
+
 	track := &Track{
 		Path: path,
 	}
-	p.Tracks = append(p.Tracks, track)
+	p.Tracks[path] = track
+	p.Stats.Tracks++
 	return track, nil
 }
 
@@ -55,7 +63,7 @@ func (db *Database) NewPlaylist(name string) (*Playlist, error) {
 		Name:             name,
 		CreationDate:     time.Now(),
 		ModificationDate: time.Now(),
-		Tracks:           make([]*Track, 0),
+		Tracks:           make(map[string]*Track, 0),
 		Status:           "New",
 	}
 	DB.Playlists = append(DB.Playlists, playlist)
