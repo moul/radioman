@@ -18,15 +18,19 @@
     </table>
 
     <h3>Tracks</h3>
-    <table class="table-light bg-white border rounded">
+    <table class="table-light overflow-hidden bg-white border rounded">
       <thead class="bg-darken-2"><tr>
         <th>Path</th>
+        <th>Size</th>
+        <th>File Modified</th>
         <th>Creation date</th>
         <th>Modification date</th>
       </tr></thead>
       <tbody>
         <tr ng:repeat="track in tracks">
           <td>{{track.relative_path}}</td>
+          <td>{{track.file_size}}</td>
+          <td>{{track.file_modification_time}}</td>
           <td>{{track.creation_date}}</td>
           <td>{{track.modification_date}}</td>
         </tr>

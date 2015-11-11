@@ -28,6 +28,9 @@ type Track struct {
 	Title            string    `json:"title"`
 	RelPath          string    `json:"relative_path"`
 	Path             string    `json:"path"`
+	FileName         string    `json:"file_name"`
+	FileSize         int64     `json:"file_size"`
+	FileModTime      time.Time `json:"file_modification_time"`
 	CreationDate     time.Time `json:"creation_date"`
 	ModificationDate time.Time `json:"modification_date"`
 }
@@ -38,8 +41,8 @@ type Database struct {
 
 var DB Database
 
-func (p *Playlist) NewTrack(path string) (*Track, error) {
-	if track, found := p.Tracks[path]; found {
+func (p *Playlist) NewLocalTrack(path string) (*Track, error) {
+	if track, err := p.GetTrackByPath(path); err == nil {
 		return track, nil
 	}
 
@@ -48,15 +51,31 @@ func (p *Playlist) NewTrack(path string) (*Track, error) {
 		relPath = path[len(p.Path):]
 	}
 
+	stat, err := os.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+
 	track := &Track{
 		Path:             path,
 		RelPath:          relPath,
+		FileName:         stat.Name(),
+		FileSize:         stat.Size(),
+		FileModTime:      stat.ModTime(),
 		CreationDate:     time.Now(),
 		ModificationDate: time.Now(),
+		// Mode:          stat.Mode(),
 	}
 	p.Tracks[path] = track
 	p.Stats.Tracks++
 	return track, nil
+}
+
+func (p *Playlist) GetTrackByPath(path string) (*Track, error) {
+	if track, found := p.Tracks[path]; found {
+		return track, nil
+	}
+	return nil, fmt.Errorf("No such track")
 }
 
 func init() {
@@ -160,7 +179,8 @@ func updatePlaylistsRoutine(db *Database) {
 					case ".DS_Store":
 						continue
 					}
-					playlist.NewTrack(walker.Path())
+
+					playlist.NewLocalTrack(walker.Path())
 				}
 			}
 
