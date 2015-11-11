@@ -6,14 +6,16 @@ import (
 	"os"
 	"time"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 )
 
 type Playlist struct {
-	Name         string    `json:"name"`
-	Path         string    `json:"path"`
-	CreationDate time.Time `json:"creation_date"`
-	Tracks       []*Track  `json:"tracks"`
+	Name             string    `json:"name"`
+	Path             string    `json:"path"`
+	CreationDate     time.Time `json:"creation_date"`
+	ModificationDate time.Time `json:"modification_date"`
+	Tracks           []*Track  `json:"tracks"`
 }
 
 type Track struct {
@@ -35,14 +37,15 @@ func init() {
 	if dir, err := os.Getwd(); err == nil {
 		DB.NewDirectoryPlaylist("local directory", dir)
 	}
-	//DB.NewDirectoryPlaylist("", "~/Music/iTunes/iTunes\ Media/Podcasts/")
 }
 
 func (db *Database) NewPlaylist(name string) (*Playlist, error) {
+	logrus.Infof("New playlist %q", name)
 	playlist := &Playlist{
-		Name:         name,
-		CreationDate: time.Now(),
-		Tracks:       make([]*Track, 0),
+		Name:             name,
+		CreationDate:     time.Now(),
+		ModificationDate: time.Now(),
+		Tracks:           make([]*Track, 0),
 	}
 	DB.Playlists = append(DB.Playlists, playlist)
 	return playlist, nil
@@ -90,7 +93,20 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
+
+	go updatePlaylistsRoutine(&DB)
+
 	router.Run(fmt.Sprintf(":%s", port))
+}
+
+func updatePlaylistsRoutine(db *Database) {
+	for {
+		for _, playlist := range db.Playlists {
+			logrus.Infof("Updating playlist %q", playlist.Name)
+			playlist.ModificationDate = time.Now()
+		}
+		time.Sleep(10 * time.Second)
+	}
 }
 
 func playlistsEndpoint(c *gin.Context) {

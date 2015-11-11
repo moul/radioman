@@ -7,7 +7,8 @@
           <th>Name</th>
           <th>Tracks</th>
           <th>Path</th>
-          <th>Creation date</th>
+          <th>Created</th>
+          <th>Modified</th>
         </tr>
       </thead>
       <tbody>
@@ -16,6 +17,7 @@
           <td class="py2">{{p.tracks.length}}</td>
           <td class="py2">{{p.path || "n/a"}}</td>
           <td class="py2" am-time-ago="p.creation_date"></td>
+          <td class="py2" am-time-ago="p.modification_date"></td>
         </tr>
       </tbody>
     </table>
