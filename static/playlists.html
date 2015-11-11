@@ -5,12 +5,16 @@
       <thead class="bg-darken-1">
         <tr>
           <th>Name</th>
+          <th>Tracks</th>
+          <th>Path</th>
           <th>Creation date</th>
         </tr>
       </thead>
       <tbody>
         <tr ng:repeat="p in playlists">
           <td class="py2"><a href="#/playlists/{{p.name}}">{{p.name}}</a></td>
+          <td class="py2">{{p.tracks.length}}</td>
+          <td class="py2">{{p.path || "n/a"}}</td>
           <td class="py2">{{p.creation_date}}</td>
         </tr>
       </tbody>
