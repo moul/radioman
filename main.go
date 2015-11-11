@@ -77,6 +77,7 @@ func main() {
 	// static files
 	router.StaticFile("/", "./static/index.html")
 	router.Static("/static", "./static")
+	router.Static("/bower_components", "./bower_components")
 
 	router.GET("/api/playlists", playlistsEndpoint)
 	router.GET("/api/playlists/:name", playlistDetailEndpoint)
