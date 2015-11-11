@@ -53,7 +53,11 @@ func (db *Database) NewDirectoryPlaylist(name string, path string) (*Playlist, e
 	if err != nil {
 		return nil, err
 	}
-	playlist.Path = path
+	expandedPath, err := expandUser(path)
+	if err != nil {
+		return nil, err
+	}
+	playlist.Path = expandedPath
 	return playlist, nil
 }
 
