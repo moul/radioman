@@ -1,3 +1,19 @@
 <section class="container">
-  <h1>Playlists.</h1>
+  <div class="overflow-scroll">
+    <h3>Playlists</h3>
+    <table class="table-light overflow-hidden bg-white border rounded">
+      <thead class="bg-darken-1">
+        <tr>
+          <th>Name</th>
+          <th>Creation date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng:repeat="p in playlists">
+          <td class="py2"><a href="#/playlists/{{p.name}}">{{p.name}}</a></td>
+          <td class="py2">{{p.creation_date}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </section>

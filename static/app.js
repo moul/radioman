@@ -11,7 +11,11 @@ liquidmanApp.config(function($routeProvider, $locationProvider) {
   $routeProvider
     .when('/playlists', {
       templateUrl: '/static/playlists.html',
-      controller: 'PlaylistCtrl'
+      controller: 'PlaylistListCtrl'
+    })
+    .when('/playlists/:name', {
+      templateUrl: '/static/playlist.html',
+      controller: 'PlaylistViewCtrl'
     })
     .otherwise({
       templateUrl: '/static/home.html',
@@ -23,5 +27,14 @@ liquidmanApp.config(function($routeProvider, $locationProvider) {
 liquidmanApp.controller('HomeCtrl', function($scope, $http, $routeParams) {
 });
 
-liquidmanApp.controller('PlaylistCtrl', function($scope, $http, $routeParams) {
+liquidmanApp.controller('PlaylistListCtrl', function($scope, $http, $routeParams) {
+  $http.get('/api/playlists').success(function (data) {
+    $scope.playlists = data.playlists;
+  });
+});
+
+liquidmanApp.controller('PlaylistViewCtrl', function($scope, $http, $routeParams) {
+  $http.get('/api/playlists/' + $routeParams.name).success(function (data) {
+    $scope.playlist = data.playlist;
+  });
 });
