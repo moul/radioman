@@ -18,11 +18,17 @@
     </table>
 
     <h3>Tracks</h3>
-    <table class="table-light overflow-hidden bg-white border rounded">
-      <thead class="bg-darken-2"><tr><th>Path</th></tr></thead>
+    <table class="table-light bg-white border rounded">
+      <thead class="bg-darken-2"><tr>
+        <th>Path</th>
+        <th>Creation date</th>
+        <th>Modification date</th>
+      </tr></thead>
       <tbody>
         <tr ng:repeat="track in tracks">
-          <td>{{track.path}}</td>
+          <td>{{track.relative_path}}</td>
+          <td>{{track.creation_date}}</td>
+          <td>{{track.modification_date}}</td>
         </tr>
       </tbody>
     </table>

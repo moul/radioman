@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/Sirupsen/logrus"
@@ -24,8 +25,11 @@ type Playlist struct {
 }
 
 type Track struct {
-	Title string `json:"title"`
-	Path  string `json:"path"`
+	Title            string    `json:"title"`
+	RelPath          string    `json:"relative_path"`
+	Path             string    `json:"path"`
+	CreationDate     time.Time `json:"creation_date"`
+	ModificationDate time.Time `json:"modification_date"`
 }
 
 type Database struct {
@@ -39,8 +43,16 @@ func (p *Playlist) NewTrack(path string) (*Track, error) {
 		return track, nil
 	}
 
+	relPath := path
+	if strings.Index(path, p.Path) == 0 {
+		relPath = path[len(p.Path):]
+	}
+
 	track := &Track{
-		Path: path,
+		Path:             path,
+		RelPath:          relPath,
+		CreationDate:     time.Now(),
+		ModificationDate: time.Now(),
 	}
 	p.Tracks[path] = track
 	p.Stats.Tracks++
