@@ -19,6 +19,8 @@
   "dependencies": {
     "basscss": "~7.0.4",
     "angular-route": "~1.4.7",
-    "angular": "~1.4.7"
+    "angular": "~1.4.7",
+    "angular-moment": "~0.10.3",
+    "moment": "~2.10.6"
   }
 }
