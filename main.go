@@ -35,11 +35,19 @@ type Track struct {
 	ModificationDate time.Time `json:"modification_date"`
 }
 
-type Database struct {
-	Playlists []*Playlist
+type Radio struct {
+	Name             string    `json:"name"`
+	DefaultPlaylist  *Playlist `json:"default_playlist"`
+	CreationDate     time.Time `json:"creation_date"`
+	ModificationDate time.Time `json:"modification_date"`
+	Stats            struct {
+		Playlists int `json:"playlists"`
+		Tracks    int `json:"tracks"`
+	} `json:"stats"`
+	Playlists []*Playlist `json:"-"`
 }
 
-var DB Database
+var R *Radio
 
 func (p *Playlist) NewLocalTrack(path string) (*Track, error) {
 	if track, err := p.GetTrackByPath(path); err == nil {
@@ -75,20 +83,33 @@ func (p *Playlist) GetTrackByPath(path string) (*Track, error) {
 	if track, found := p.Tracks[path]; found {
 		return track, nil
 	}
-	return nil, fmt.Errorf("No such track")
+	return nil, fmt.Errorf("no such track")
 }
 
-func init() {
-	DB.Playlists = make([]*Playlist, 0)
-	DB.NewPlaylist("manual")
-	DB.NewDirectoryPlaylist("iTunes Music", "~/Music/iTunes/iTunes Media/Music/")
-	DB.NewDirectoryPlaylist("iTunes Podcasts", "~/Music/iTunes/iTunes Media/Podcasts/")
-	if dir, err := os.Getwd(); err == nil {
-		DB.NewDirectoryPlaylist("local directory", dir)
+func NewRadio(name string) *Radio {
+	return &Radio{
+		Name:             name,
+		Playlists:        make([]*Playlist, 0),
+		CreationDate:     time.Now(),
+		ModificationDate: time.Now(),
 	}
 }
 
-func (db *Database) NewPlaylist(name string) (*Playlist, error) {
+func init() {
+	R = NewRadio("RadioMan")
+
+	R.NewPlaylist("manual")
+	R.NewDirectoryPlaylist("iTunes Music", "~/Music/iTunes/iTunes Media/Music/")
+	R.NewDirectoryPlaylist("iTunes Podcasts", "~/Music/iTunes/iTunes Media/Podcasts/")
+	if dir, err := os.Getwd(); err == nil {
+		R.NewDirectoryPlaylist("local directory", dir)
+	}
+
+	playlist, _ := R.GetPlaylistByName("iTunes Music")
+	R.DefaultPlaylist = playlist
+}
+
+func (r *Radio) NewPlaylist(name string) (*Playlist, error) {
 	logrus.Infof("New playlist %q", name)
 	playlist := &Playlist{
 		Name:             name,
@@ -97,12 +118,13 @@ func (db *Database) NewPlaylist(name string) (*Playlist, error) {
 		Tracks:           make(map[string]*Track, 0),
 		Status:           "New",
 	}
-	DB.Playlists = append(DB.Playlists, playlist)
+	r.Playlists = append(r.Playlists, playlist)
+	r.Stats.Playlists++
 	return playlist, nil
 }
 
-func (db *Database) NewDirectoryPlaylist(name string, path string) (*Playlist, error) {
-	playlist, err := db.NewPlaylist(name)
+func (r *Radio) NewDirectoryPlaylist(name string, path string) (*Playlist, error) {
+	playlist, err := r.NewPlaylist(name)
 	if err != nil {
 		return nil, err
 	}
@@ -114,17 +136,19 @@ func (db *Database) NewDirectoryPlaylist(name string, path string) (*Playlist, e
 	return playlist, nil
 }
 
-func (db *Database) GetPlaylistByName(name string) (*Playlist, error) {
-	for _, playlist := range DB.Playlists {
+func (r *Radio) GetPlaylistByName(name string) (*Playlist, error) {
+	for _, playlist := range r.Playlists {
 		if playlist.Name == name {
 			return playlist, nil
 		}
 	}
-	return nil, fmt.Errorf("No such playlist")
+	return nil, fmt.Errorf("no such playlist")
 }
 
 func main() {
 	router := gin.Default()
+
+	radio := R
 
 	// ping
 	router.GET("/ping", func(c *gin.Context) {
@@ -140,19 +164,22 @@ func main() {
 	router.GET("/api/playlists/:name", playlistDetailEndpoint)
 	router.GET("/api/playlists/:name/tracks", playlistTracksEndpoint)
 
+	router.GET("/api/radios/default", defaultRadioEndpoint)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	go updatePlaylistsRoutine(&DB)
+	go updatePlaylistsRoutine(radio)
 
 	router.Run(fmt.Sprintf(":%s", port))
 }
 
-func updatePlaylistsRoutine(db *Database) {
+func updatePlaylistsRoutine(r *Radio) {
 	for {
-		for _, playlist := range db.Playlists {
+		tracksSum := 0
+		for _, playlist := range r.Playlists {
 			if playlist.Path == "" {
 				logrus.Debugf("Playlist %q is not dynamic, skipping update", playlist.Name)
 				continue
@@ -187,20 +214,28 @@ func updatePlaylistsRoutine(db *Database) {
 			logrus.Infof("Playlist %q updated, %d tracks", playlist.Name, len(playlist.Tracks))
 			playlist.Status = "Ready"
 			playlist.ModificationDate = time.Now()
+			tracksSum += playlist.Stats.Tracks
 		}
+		r.Stats.Tracks = tracksSum
 		time.Sleep(5 * time.Minute)
 	}
 }
 
 func playlistsEndpoint(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"playlists": DB.Playlists,
+		"playlists": R.Playlists,
+	})
+}
+
+func defaultRadioEndpoint(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"radio": R,
 	})
 }
 
 func playlistDetailEndpoint(c *gin.Context) {
 	name := c.Param("name")
-	playlist, err := DB.GetPlaylistByName(name)
+	playlist, err := R.GetPlaylistByName(name)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": err,
@@ -214,7 +249,7 @@ func playlistDetailEndpoint(c *gin.Context) {
 
 func playlistTracksEndpoint(c *gin.Context) {
 	name := c.Param("name")
-	playlist, err := DB.GetPlaylistByName(name)
+	playlist, err := R.GetPlaylistByName(name)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": err,

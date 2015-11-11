@@ -25,6 +25,9 @@ radiomanApp.config(function($routeProvider, $locationProvider) {
 });
 
 radiomanApp.controller('HomeCtrl', function($scope, $http, $routeParams) {
+  $http.get('/api/radios/default').success(function (data) {
+    $scope.radio = data.radio;
+  });
 });
 
 radiomanApp.controller('PlaylistListCtrl', function($scope, $http, $routeParams) {

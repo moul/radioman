@@ -1,3 +1,19 @@
 <section class="container">
-  <h1>Hello.</h1>
+  <h1>Welcome to Radioman.</h1>
+
+  <table class="table-light overflow-hidden bg-white border rounded">
+    <thead class="bg-darken-2"><tr><th colspan="2">Info</th></tr></thead>
+    <tbody>
+      <tr><td class="bg-darken-1">Name</td><td>{{radio.name}}</td></tr>
+      <tr><td class="bg-darken-1">Default playlist</td><td><a href="#/playlists/{{radio.default_playlist.name}}">{{radio.default_playlist.name}}</a></td></tr>
+      <tr><td class="bg-darken-1">Creation date</td><td>{{radio.creation_date}}</td></tr>
+      <tr><td class="bg-darken-1">Modification date</td><td>{{radio.modification_date}}</td></tr>
+    </tbody>
+    <thead class="bg-darken-2"><tr><th colspan="2">Stats</th></tr></thead>
+    <tbody>
+      <tr><td class="bg-darken-1">Playlists</td><td>{{radio.stats.playlists}}</td></tr>
+      <tr><td class="bg-darken-1">Tracks</td><td>{{radio.stats.tracks}}</td></tr>
+    </tbody>
+  </table>
+
 </section>
