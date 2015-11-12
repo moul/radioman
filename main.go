@@ -11,6 +11,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	"github.com/kr/fs"
+	"github.com/wtolson/go-taglib"
 )
 
 type Playlist struct {
@@ -34,6 +35,16 @@ type Track struct {
 	FileModTime      time.Time `json:"file_modification_time"`
 	CreationDate     time.Time `json:"creation_date"`
 	ModificationDate time.Time `json:"modification_date"`
+	Tag              struct {
+		Length   time.Duration `json:"length"`
+		Title    string        `json:"title"`
+		Artist   string        `json:"artist"`
+		Album    string        `json:"album"`
+		Genre    string        `json:"genre"`
+		Bitrate  int           `json:"bitrate"`
+		Year     int           `json:"year"`
+		Channels int           `json:"channels"`
+	} `json:"tag"`
 }
 
 type Radio struct {
@@ -75,6 +86,23 @@ func (p *Playlist) NewLocalTrack(path string) (*Track, error) {
 		ModificationDate: time.Now(),
 		// Mode:          stat.Mode(),
 	}
+
+	file, err := taglib.Read(path)
+	if err != nil {
+		logrus.Warnf("Failed to read taglib %q: %v", path, err)
+	} else {
+		defer file.Close()
+		track.Tag.Length = file.Length()
+		track.Tag.Artist = file.Artist()
+		track.Tag.Title = file.Title()
+		track.Tag.Album = file.Album()
+		track.Tag.Genre = file.Genre()
+		track.Tag.Bitrate = file.Bitrate()
+		track.Tag.Year = file.Year()
+		track.Tag.Channels = file.Channels()
+		// fmt.Println(file.Title(), file.Artist(), file.Album(), file.Comment(), file.Genre(), file.Year(), file.Track(), file.Length(), file.Bitrate(), file.Samplerate(), file.Channels())
+	}
+
 	p.Tracks[path] = track
 	p.Stats.Tracks++
 	return track, nil

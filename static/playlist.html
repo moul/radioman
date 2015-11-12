@@ -22,6 +22,13 @@
       <thead class="bg-darken-2"><tr>
         <th>Path</th>
         <th>Size</th>
+        <th>Title</th>
+        <th>Artist</th>
+        <th>Album</th>
+        <th>Year</th>
+        <th>Genre</th>
+        <th>Bitrate</th>
+        <th>Channels</th>
         <th>File Modified</th>
         <th>Creation date</th>
         <th>Modification date</th>
@@ -30,6 +37,13 @@
         <tr ng:repeat="track in tracks">
           <td>{{track.relative_path}}</td>
           <td>{{track.file_size}}</td>
+          <td>{{track.tag.title || "n/a"}}</td>
+          <td>{{track.tag.artist || "n/a"}}</td>
+          <td>{{track.tag.album || "n/a"}}</td>
+          <td>{{track.tag.year || "n/a"}}</td>
+          <td>{{track.tag.genre || "n/a"}}</td>
+          <td>{{track.tag.bitrate || "n/a"}}</td>
+          <td>{{track.tag.channels || "n/a"}}</td>
           <td>{{track.file_modification_time}}</td>
           <td>{{track.creation_date}}</td>
           <td>{{track.modification_date}}</td>
