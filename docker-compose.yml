@@ -1,6 +1,40 @@
 radioman:
   build: .
+  restart: always
+  volumes:
+  - $HOME/Music:$HOME/Music
+  - /etc/localtime:/etc/localtime:ro
+  ports:
+  - 4343:8000
+  # links:
+  # - liquidsoap
 
 liquidsoap:
   image: moul/liquidsoap
-  command: liquidsoap 'output.dummy(blank())'
+  volumes:
+  command: /supervisor.sh liquidsoap -v --debug /liquidsoap/main.liq
+  restart: always
+  volumes:
+  - ./liquidsoap:/liquidsoap
+  - $HOME/Music:$HOME/Music
+  - /etc/localtime:/etc/localtime:ro
+  links:
+  - radioman
+  - icecast
+  ports:
+  - 8000
+  environment:
+  - ICECAST_SOURCE_PASSWORD
+
+icecast:
+  image: moul/icecast
+  restart: always
+  volumes:
+  - /etc/localtime:/etc/localtime:ro
+  ports:
+  - 4444:8000
+  environment:
+  - ICECAST_SOURCE_PASSWORD
+  - ICECAST_ADMIN_PASSWORD
+  - ICECAST_PASSWORD
+  - ICECAST_RELAY_PASSWORD
