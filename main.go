@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
 	"strings"
@@ -166,6 +167,8 @@ func main() {
 
 	router.GET("/api/radios/default", defaultRadioEndpoint)
 
+	router.GET("/api/liquidsoap/getNextSong", getNextSongEndpoint)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
@@ -174,6 +177,31 @@ func main() {
 	go updatePlaylistsRoutine(radio)
 
 	router.Run(fmt.Sprintf(":%s", port))
+}
+
+func getNextSongEndpoint(c *gin.Context) {
+	playlist := R.DefaultPlaylist
+	// FIXME: shuffle playlist instead of getting a random track
+	// FIXME: do not iterate over a map
+	track, err := playlist.GetRandomTrack()
+	if err != nil {
+		c.String(http.StatusNotFound, fmt.Sprintf("%v", err))
+		return
+	}
+
+	c.String(http.StatusOK, track.Path)
+}
+
+func (p *Playlist) GetRandomTrack() (*Track, error) {
+	i := rand.Intn(len(p.Tracks))
+
+	for _, track := range p.Tracks {
+		if i <= 0 {
+			return track, nil
+		}
+		i--
+	}
+	return nil, fmt.Errorf("cannot get a random track")
 }
 
 func updatePlaylistsRoutine(r *Radio) {
