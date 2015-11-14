@@ -5,6 +5,8 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -131,8 +133,27 @@ func init() {
 	R.NewPlaylist("manual")
 	R.NewDirectoryPlaylist("iTunes Music", "~/Music/iTunes/iTunes Media/Music/")
 	R.NewDirectoryPlaylist("iTunes Podcasts", "~/Music/iTunes/iTunes Media/Podcasts/")
-	if dir, err := os.Getwd(); err == nil {
+	dir, err := os.Getwd()
+	if err == nil {
 		R.NewDirectoryPlaylist("local directory", dir)
+	}
+	playlistsDir := path.Join(dir, "playlists")
+	walker := fs.Walk(playlistsDir)
+	for walker.Step() {
+		if walker.Path() == playlistsDir {
+			continue
+		}
+		if err := walker.Err(); err != nil {
+			logrus.Warnf("walker error: %v", err)
+			continue
+		}
+		realpath, err := filepath.EvalSymlinks(walker.Path())
+		if err != nil {
+			logrus.Warnf("filepath.EvalSymlinks error for %q: %v", walker.Path(), err)
+			continue
+		}
+
+		R.NewDirectoryPlaylist(fmt.Sprintf("playlist: %s", walker.Stat().Name()), realpath)
 	}
 
 	playlist, _ := R.GetPlaylistByName("iTunes Music")
