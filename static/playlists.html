@@ -4,16 +4,16 @@
     <table class="table-light overflow-hidden bg-white border rounded">
       <thead class="bg-darken-1">
         <tr>
-          <th>Status</th>
-          <th>Name</th>
-          <th>Tracks</th>
-          <th>Path</th>
-          <th>Created</th>
-          <th>Modified</th>
+          <th><a href="" ng-click="orderByField='status'; reverseSort=!reverseSort">Status</a></th>
+          <th><a href="" ng-click="orderByField='name'; reverseSort=!reverseSort">Name</a></th>
+          <th><a href="" ng-click="orderByField='stats.tracks'; reverseSort=!reverseSort">Tracks</a></th>
+          <th><a href="" ng-click="orderByField='path'; reverseSort=!reverseSort">Path</a></th>
+          <th><a href="" ng-click="orderByField='creation_date'; reverseSort=!reverseSort">Created</a></th>
+          <th><a href="" ng-click="orderByField='modification_date'; reverseSort=!reverseSort">Modified</a></th>
         </tr>
       </thead>
       <tbody>
-        <tr ng:repeat="p in playlists">
+        <tr ng:repeat="p in playlists | orderBy:orderByField:reverseSort">
           <td class="py2">{{p.status}}</td>
           <td class="py2"><a href="#/playlists/{{p.name}}">{{p.name}}</a></td>
           <td class="py2">{{p.stats.tracks}}</td>

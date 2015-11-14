@@ -31,16 +31,29 @@ radiomanApp.controller('HomeCtrl', function($scope, $http, $routeParams) {
 });
 
 radiomanApp.controller('PlaylistListCtrl', function($scope, $http, $routeParams) {
+  $scope.orderByField = 'name';
+  $scope.reverseSort = true;
   $http.get('/api/playlists').success(function (data) {
     $scope.playlists = data.playlists;
   });
 });
 
 radiomanApp.controller('PlaylistViewCtrl', function($scope, $http, $routeParams) {
+  $scope.orderByField = 'path';
+  $scope.reverseSort = true;
   $http.get('/api/playlists/' + $routeParams.name).success(function (data) {
     $scope.playlist = data.playlist;
   });
   $http.get('/api/playlists/' + $routeParams.name + '/tracks').success(function (data) {
     $scope.tracks = data.tracks;
   });
+});
+
+radiomanApp.filter('dictToArray', function() {
+  return function (obj) {
+    if (!(obj instanceof Object)) return obj;
+    return _.map(obj, function(val, key) {
+      return Object.defineProperty(val, '$key', {__proto__: null, value: key});
+    });
+  };
 });
