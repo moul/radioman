@@ -6,8 +6,14 @@
     <tbody>
       <tr><td class="bg-darken-1">Name</td><td>{{radio.name}}</td></tr>
       <tr><td class="bg-darken-1">Default playlist</td><td><a href="#/playlists/{{radio.default_playlist.name}}">{{radio.default_playlist.name}}</a></td></tr>
-      <tr><td class="bg-darken-1">Creation date</td><td>{{radio.creation_date}}</td></tr>
-      <tr><td class="bg-darken-1">Modification date</td><td>{{radio.modification_date}}</td></tr>
+      <tr>
+        <td class="bg-darken-1">Creation date</td>
+        <td am-time-ago="radio.creation_date" title="{{radio.creation_date}}">{{radio.creation_date}}</td>
+      </tr>
+      <tr>
+        <td class="bg-darken-1">Modification date</td>
+        <td am-time-ago="radio.modification_date" title="{{radio.modification_date}}">{{radio.modification_date}}</td>
+      </tr>
     </tbody>
     <thead class="bg-darken-2"><tr><th colspan="2">Stats</th></tr></thead>
     <tbody>

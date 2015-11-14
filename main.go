@@ -27,6 +27,7 @@ type Playlist struct {
 }
 
 type Track struct {
+	Status           string    `json:"status"`
 	Title            string    `json:"title"`
 	RelPath          string    `json:"relative_path"`
 	Path             string    `json:"path"`

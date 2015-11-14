@@ -18,8 +18,8 @@
           <td class="py2"><a href="#/playlists/{{p.name}}">{{p.name}}</a></td>
           <td class="py2">{{p.stats.tracks}}</td>
           <td class="py2">{{p.path || "n/a"}}</td>
-          <td class="py2" am-time-ago="p.creation_date"></td>
-          <td class="py2" am-time-ago="p.modification_date"></td>
+          <td class="py2" am-time-ago="p.creation_date" title="{{p.creation_date}}">{{p.creation_date}}</td>
+          <td class="py2" am-time-ago="p.modification_date" title="{{p.modification_date}}">{{p.modification_date}}</td>
         </tr>
       </tbody>
     </table>

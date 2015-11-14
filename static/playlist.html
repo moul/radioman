@@ -7,8 +7,14 @@
       <tbody>
         <tr><td class="bg-darken-1">Name</td><td>{{playlist.name}}</td></tr>
         <tr><td class="bg-darken-1">Path</td><td>{{playlist.path}}</td></tr>
-        <tr><td class="bg-darken-1">Creation date</td><td>{{playlist.creation_date}}</td></tr>
-        <tr><td class="bg-darken-1">Modification date</td><td>{{playlist.modification_date}}</td></tr>
+        <tr>
+          <td class="bg-darken-1">Creation date</td>
+          <td am-time-ago="playlist.creation_date" title="{{playlist.creation_date}}">{{playlist.creation_date}}</td>
+        </tr>
+        <tr>
+          <td class="bg-darken-1">Modification date</td>
+          <td am-time-ago="playlist.modification_date" title="{{playlist.modification_date}}">{{playlist.modification_date}}</td>
+        </tr>
         <tr><td class="bg-darken-1">Status</td><td>{{playlist.status}}</td></tr>
       </tbody>
       <thead class="bg-darken-2"><tr><th colspan="2">Stats</th></tr></thead>
