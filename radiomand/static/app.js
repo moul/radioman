@@ -1,4 +1,4 @@
-var radiomanApp = angular.module('radiomanApp', ['ngRoute', 'angularMoment']);
+var radiomanApp = angular.module('radiomanApp', ['ngRoute', 'angularMoment', 'angular-loading-bar', 'ngAnimate']);
 
 radiomanApp.controller('MainCtrl', function($scope, $route, $routeParams, $location) {
   $scope.$route = $route;
