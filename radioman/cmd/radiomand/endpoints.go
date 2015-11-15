@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
@@ -151,4 +152,23 @@ func playlistTracksEndpoint(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"tracks": playlist.Tracks,
 	})
+}
+
+func m3uPlaylistEndpoint(c *gin.Context) {
+	host := strings.Split(c.Request.Host, ":")[0]
+	mountpoints := []string{
+		"mp3-192",
+		"aac-192",
+		"vorbis",
+		"aac-128",
+		"mp3-128",
+	}
+
+	links := []string{}
+	for _, mountpoint := range mountpoints {
+		links = append(links, fmt.Sprintf("http://%s:4444/%s", host, mountpoint))
+	}
+
+	c.Header("Content-Type", "audio/x-mpegurl")
+	c.String(http.StatusOK, strings.Join(links, "\n"))
 }

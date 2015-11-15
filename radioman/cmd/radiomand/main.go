@@ -52,6 +52,8 @@ func main() {
 
 	router.GET("/api/liquidsoap/getNextSong", getNextSongEndpoint)
 
+	router.GET("/playlist.m3u", m3uPlaylistEndpoint)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8000"
