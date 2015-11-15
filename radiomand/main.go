@@ -1,14 +1,13 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"math/rand"
-	"net"
 	"net/http"
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -61,7 +60,8 @@ type Radio struct {
 		Playlists int `json:"playlists"`
 		Tracks    int `json:"tracks"`
 	} `json:"stats"`
-	Playlists []*Playlist `json:"-"`
+	Playlists []*Playlist       `json:"-"`
+	Telnet    *LiquidsoapTelnet `json:"-"`
 }
 
 var R *Radio
@@ -135,6 +135,22 @@ func NewRadio(name string) *Radio {
 
 func init() {
 	R = NewRadio("RadioMan")
+
+	// Initialize Telnet
+	liquidsoapAddr := strings.Split(strings.Replace(os.Getenv("LIQUIDSOAP_PORT_2300_TCP"), "tcp://", "", -1), ":")
+	liquidsoapHost := liquidsoapAddr[0]
+	liquidsoapPort, _ := strconv.Atoi(liquidsoapAddr[1])
+	R.Telnet = NewLiquidsoapTelnet(liquidsoapHost, liquidsoapPort)
+	err := R.Telnet.Open()
+	if err != nil {
+		logrus.Fatalf("Failed to connect to liquidsoap")
+	}
+	fmt.Println(strings.Repeat("*", 8000))
+	radiomandHost := strings.Split(R.Telnet.Conn.LocalAddr().String(), ":")[0]
+	R.Telnet.Close()
+	ret, err := R.Telnet.Command(fmt.Sprintf(`var.set radiomand_url = "http://%s:%d"`, radiomandHost, 8000))
+	fmt.Println(strings.Repeat("@", 800))
+	fmt.Println(ret, err)
 
 	R.NewPlaylist("manual")
 	R.NewDirectoryPlaylist("iTunes Music", "~/Music/iTunes/iTunes Media/Music/")
@@ -361,18 +377,10 @@ func defaultRadioEndpoint(c *gin.Context) {
 }
 
 func radioSkipSongEndpoint(c *gin.Context) {
-	// radio := R
+	radio := R
 
-	command := "manager.skip"
-	dest := strings.Replace(os.Getenv("LIQUIDSOAP_PORT_2300_TCP"), "tcp://", "", -1)
-	conn, _ := net.Dial("tcp", dest)
-	fmt.Fprintf(conn, "%s\n", command)
-	message, _ := bufio.NewReader(conn).ReadString('\n')
-	fmt.Printf("Message from server: %v", message)
-
-	c.JSON(http.StatusOK, gin.H{
-		"message": "done",
-	})
+	ret, err := radio.Telnet.Command("manager.skip")
+	fmt.Println(ret, err)
 }
 
 func playlistDetailEndpoint(c *gin.Context) {
