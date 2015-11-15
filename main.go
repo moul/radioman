@@ -363,7 +363,7 @@ func defaultRadioEndpoint(c *gin.Context) {
 func radioSkipSongEndpoint(c *gin.Context) {
 	// radio := R
 
-	command := "/radioman(dot)mp3.skip"
+	command := "manager.skip"
 	dest := strings.Replace(os.Getenv("LIQUIDSOAP_PORT_2300_TCP"), "tcp://", "", -1)
 	conn, _ := net.Dial("tcp", dest)
 	fmt.Fprintf(conn, "%s\n", command)

@@ -38,12 +38,18 @@ source = fallback([
 
 
 # Outputs
-output.icecast(
-  %mp3(bitrate=192),
-  host=getenv("ICECAST_PORT_8000_TCP_ADDR"),
-  port=int_of_string(getenv("ICECAST_PORT_8000_TCP_PORT")),
-  password=getenv("ICECAST_SOURCE_PASSWORD"),
-  mount="/radioman.mp3",
-  source
-)
-# output.dummy(blank())
+def outputs(s) =
+  icy = output.icecast(
+    host=getenv("ICECAST_PORT_8000_TCP_ADDR"),
+    port=int_of_string(getenv("ICECAST_PORT_8000_TCP_PORT")),
+    password=getenv("ICECAST_SOURCE_PASSWORD")
+  )
+
+  icy(%mp3(bitrate=128), mount="/mp3-128", s)
+  icy(%mp3(bitrate=192), mount="/mp3-192", s)
+  icy(%aac(bitrate=128), mount="/aac-128", s)
+  icy(%aac(bitrate=192), mount="/aac-192", s)
+  icy(%vorbis, mount="/vorbis", s)
+  output.dummy(id="manager", s)
+end
+outputs(source)
