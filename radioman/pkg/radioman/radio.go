@@ -3,6 +3,8 @@ package radioman
 import (
 	"fmt"
 	"os"
+	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -32,7 +34,7 @@ func (r *Radio) NewPlaylist(name string) (*Playlist, error) {
 		CreationDate:     time.Now(),
 		ModificationDate: time.Now(),
 		Tracks:           make(map[string]*Track, 0),
-		Status:           "New",
+		Status:           "new",
 	}
 	r.Playlists = append(r.Playlists, playlist)
 	r.Stats.Playlists++
@@ -98,7 +100,7 @@ func (r *Radio) UpdatePlaylistsRoutine() {
 			}
 
 			logrus.Infof("Updating playlist %q", playlist.Name)
-			playlist.Status = "Updating"
+			playlist.Status = "updating"
 
 			walker := fs.Walk(playlist.Path)
 			for walker.Step() {
@@ -124,11 +126,78 @@ func (r *Radio) UpdatePlaylistsRoutine() {
 			}
 
 			logrus.Infof("Playlist %q updated, %d tracks", playlist.Name, len(playlist.Tracks))
-			playlist.Status = "Ready"
+			if playlist.Stats.Tracks > 0 {
+				playlist.Status = "ready"
+				// Set default playlist if needed
+				if r.DefaultPlaylist == nil {
+					r.DefaultPlaylist = playlist
+				}
+			} else {
+				playlist.Status = "empty"
+			}
 			playlist.ModificationDate = time.Now()
 			tracksSum += playlist.Stats.Tracks
 		}
 		r.Stats.Tracks = tracksSum
 		time.Sleep(5 * time.Minute)
 	}
+}
+
+func (r *Radio) Init() error {
+	if err := r.InitTelnet(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Radio) StdPopulate() error {
+	// Add a dummy manual playlist
+	r.NewPlaylist("manual")
+
+	// Add 'standard' music paths
+	r.NewDirectoryPlaylist("iTunes Music", "~/Music/iTunes/iTunes Media/Music/")
+	r.NewDirectoryPlaylist("iTunes Podcasts", "~/Music/iTunes/iTunes Media/Podcasts/")
+
+	// Add local directory
+	dir, err := os.Getwd()
+	if err == nil {
+		r.NewDirectoryPlaylist("local directory", dir)
+	}
+
+	// Add each folders in '/playlists' and './playlists'
+	for _, playlistsDir := range []string{"/playlists", path.Join(dir, "playlists")} {
+		walker := fs.Walk(playlistsDir)
+		for walker.Step() {
+			if walker.Path() == playlistsDir {
+				continue
+			}
+			if err := walker.Err(); err != nil {
+				logrus.Warnf("walker error: %v", err)
+				continue
+			}
+
+			var realpath string
+			if walker.Stat().IsDir() {
+				realpath = walker.Path()
+				walker.SkipDir()
+			} else {
+				realpath, err = filepath.EvalSymlinks(walker.Path())
+				if err != nil {
+					logrus.Warnf("filepath.EvalSymlinks error for %q: %v", walker.Path(), err)
+					continue
+				}
+			}
+
+			stat, err := os.Stat(realpath)
+			if err != nil {
+				logrus.Warnf("os.Stat error: %v", err)
+				continue
+			}
+			if stat.IsDir() {
+				r.NewDirectoryPlaylist(fmt.Sprintf("playlist: %s", walker.Stat().Name()), realpath)
+			}
+		}
+	}
+
+	return nil
 }
