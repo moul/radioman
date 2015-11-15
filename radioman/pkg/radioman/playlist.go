@@ -78,6 +78,10 @@ func (p *Playlist) GetTrackByPath(path string) (*Track, error) {
 }
 
 func (p *Playlist) GetRandomTrack() (*Track, error) {
+	if p.Status != "ready" {
+		return nil, fmt.Errorf("playlist is not ready")
+	}
+
 	validFiles := 0
 	for _, track := range p.Tracks {
 		if track.IsValid() {
