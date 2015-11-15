@@ -7,7 +7,7 @@ COMPOSE_ENV ?= ICECAST_SOURCE_PASSWORD="$(PASSWORD)" ICECAST_ADMIN_PASSWORD="$(P
 SOURCES := $(find . -name "*.go")
 DOCKER_HOST ?= tcp://127.0.0.1:2376
 DOCKER_HOST_IP := $(shell echo $(DOCKER_HOST) | cut -d/ -f3 | cut -d: -f1)
-
+DOCKER_COMPOSE ?= docker-compose -pradioman
 
 all: build
 
@@ -21,17 +21,32 @@ docker-telnet:
 	socat readline TCP:$(DOCKER_HOST_IP):2300
 
 
+.PHONY: docker-exec-liquidsoap
+docker-exec-liquidsoap:
+	docker exec -it `docker-compose ps -q liquidsoap` /bin/bash
+
+
+.PHONY: docker-exec-radioman
+docker-exec-radioman:
+	docker exec -it `docker-compose ps -q radioman` /bin/bash
+
+
+.PHONY: docker-exec-icecast
+docker-exec-icecast:
+	docker exec -it `docker-compose ps -q icecast` /bin/bash
+
+
 radioman: $(SOURCES)
 	$(GO) build -o $@ .
 
 
 .PHONY: compose
 compose:
-	docker-compose build radioman
-	docker-compose kill
-	docker-compose rm -f
-	$(COMPOSE_ENV) docker-compose up -d $(COMPOSE_TARGET)
-	docker-compose logs $(COMPOSE_TARGET)
+	$(DOCKER_COMPOSE) build radioman
+	$(DOCKER_COMPOSE) kill
+	$(DOCKER_COMPOSE) rm -f
+	$(COMPOSE_ENV) $(DOCKER_COMPOSE) up -d $(COMPOSE_TARGET)
+	$(DOCKER_COMPOSE) logs $(COMPOSE_TARGET)
 
 
 .PHONY: gin
