@@ -26,7 +26,7 @@ liquidsoap:
   # - radioman
   - icecast
   ports:
-  - 5555:8000
+  - 2300:2300
   environment:
   - ICECAST_SOURCE_PASSWORD
 

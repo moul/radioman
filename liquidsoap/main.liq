@@ -9,8 +9,9 @@ set("log.level", 4)
 
 
 # Configure Telnet server
-#set("server.telnet", true)
-#set("server.telnet.port", 23)
+set("server.telnet", true)
+set("server.telnet.port", 2300)
+set("server.telnet.bind_addr", "0.0.0.0")
 
 
 # Tuning
