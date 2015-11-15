@@ -25,31 +25,46 @@
 
     <h3>Tracks</h3>
     <table class="table-light bg-white border rounded">
-      <thead class="bg-darken-2"><tr>
-        <th><a href="" ng-click="orderByField='relative_path'; reverseSort=!reverseSort">Path</a></th>
-        <th><a href="" ng-click="orderByField='file_size'; reverseSort=!reverseSort">Size</a></th>
-        <th><a href="" ng-click="orderByField='tag.length'; reverseSort=!reverseSort">Length</a></th>
-        <th><a href="" ng-click="orderByField='tag.title'; reverseSort=!reverseSort">Title</a></th>
-        <th><a href="" ng-click="orderByField='tag.artist'; reverseSort=!reverseSort">Artist</a></th>
-        <th><a href="" ng-click="orderByField='tag.album'; reverseSort=!reverseSort">Album</a></th>
-        <th><a href="" ng-click="orderByField='tag.year'; reverseSort=!reverseSort">Year</a></th>
-        <th><a href="" ng-click="orderByField='tag.genre'; reverseSort=!reverseSort">Genre</a></th>
-        <th><a href="" ng-click="orderByField='tag.bitrate'; reverseSort=!reverseSort">Bitrate</a></th>
-        <th><a href="" ng-click="orderByField='tag.channels'; reverseSort=!reverseSort">Channels</a></th>
-        <th><a href="" ng-click="orderByField='file_modification_time'; reverseSort=!reverseSort">File Modified</a></th>
-        <th><a href="" ng-click="orderByField='creation_date'; reverseSort=!reverseSort">File Creation</a></th>
-        <th><a href="" ng-click="orderByField='modification_date'; reverseSort=!reverseSort">Modification date</a></th>
-      </tr></thead>
+      <thead class="bg-darken-2">
+        <tr>
+          <!--<th><a href="" ng-click="orderByField='relative_path'; reverseSort=!reverseSort">Path</a></th>-->
+          <th><a href="" ng-click="orderByField='title'; reverseSort=!reverseSort">Title</a></th>
+          <th><a href="" ng-click="orderByField='creation_date'; reverseSort=!reverseSort">File Creation</a></th>
+          <!--
+          <th><a href="" ng-click="orderByField='tag.title'; reverseSort=!reverseSort">Title</a></th>
+          <th><a href="" ng-click="orderByField='file_size'; reverseSort=!reverseSort">Size</a></th>
+          <th><a href="" ng-click="orderByField='tag.length'; reverseSort=!reverseSort">Length</a></th>
+          <th><a href="" ng-click="orderByField='tag.artist'; reverseSort=!reverseSort">Artist</a></th>
+          <th><a href="" ng-click="orderByField='tag.album'; reverseSort=!reverseSort">Album</a></th>
+          <th><a href="" ng-click="orderByField='tag.year'; reverseSort=!reverseSort">Year</a></th>
+          <th><a href="" ng-click="orderByField='tag.genre'; reverseSort=!reverseSort">Genre</a></th>
+          <th><a href="" ng-click="orderByField='tag.bitrate'; reverseSort=!reverseSort">Bitrate</a></th>
+          <th><a href="" ng-click="orderByField='tag.channels'; reverseSort=!reverseSort">Channels</a></th>
+          <th><a href="" ng-click="orderByField='file_modification_time'; reverseSort=!reverseSort">File Modified</a></th>
+          <th><a href="" ng-click="orderByField='creation_date'; reverseSort=!reverseSort">File Creation</a></th>
+          <th><a href="" ng-click="orderByField='modification_date'; reverseSort=!reverseSort">Modification date</a></th>
+          -->
+        </tr></thead>
       <tbody>
         <tr ng:repeat="track in tracks | dictToArray | orderBy:orderByField:reverseSort">
+          <!--
+          <td>
+          <a href="#/tracks/{{track.hash}}">
+          {{track.relative_path}}
+          </a>
+          </td>
+          -->
           <td>
             <a href="#/tracks/{{track.hash}}">
-              {{track.relative_path}}
+              {{track.title || "n/a"}}
             </a>
           </td>
+          <td am-time-ago="track.creation_date" title="{{track.creation_date}}">{{track.creation_date}}</td>
+
+          <!--
+          <td>{{track.tag.title || "n/a"}}</td>
           <td>{{track.file_size}}</td>
           <td>{{track.tag.length || "n/a"}}</td>
-          <td>{{track.tag.title || "n/a"}}</td>
           <td>{{track.tag.artist || "n/a"}}</td>
           <td>{{track.tag.album || "n/a"}}</td>
           <td>{{track.tag.year || "n/a"}}</td>
@@ -57,8 +72,8 @@
           <td>{{track.tag.bitrate || "n/a"}}</td>
           <td>{{track.tag.channels || "n/a"}}</td>
           <td>{{track.file_modification_time}}</td>
-          <td>{{track.creation_date}}</td>
           <td>{{track.modification_date}}</td>
+          -->
         </tr>
       </tbody>
     </table>

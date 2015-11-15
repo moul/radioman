@@ -52,9 +52,10 @@ func (p *Playlist) NewLocalTrack(path string) (*Track, error) {
 	if err != nil {
 		logrus.Warnf("Failed to read taglib %q: %v", path, err)
 		track.Status = "error"
+		track.Title = track.FileName
 	} else {
 		defer file.Close()
-		track.Tag.Length = file.Length()
+		track.Tag.Length = file.Length() / time.Second
 		track.Tag.Artist = file.Artist()
 		track.Tag.Title = file.Title()
 		track.Tag.Album = file.Album()
@@ -62,6 +63,8 @@ func (p *Playlist) NewLocalTrack(path string) (*Track, error) {
 		track.Tag.Bitrate = file.Bitrate()
 		track.Tag.Year = file.Year()
 		track.Tag.Channels = file.Channels()
+		// FIXME: do not prepend the artist if it is already present in the title
+		track.Title = fmt.Sprintf("%s - %s", track.Tag.Artist, track.Tag.Title)
 		track.Status = "ready"
 		// fmt.Println(file.Title(), file.Artist(), file.Album(), file.Comment(), file.Genre(), file.Year(), file.Track(), file.Length(), file.Bitrate(), file.Samplerate(), file.Channels())
 	}
