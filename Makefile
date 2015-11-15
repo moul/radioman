@@ -22,6 +22,11 @@ docker-telnet:
 	socat readline TCP:$(DOCKER_HOST_IP):2300
 
 
+.PHONY: test-liquidsoap-config
+test-liquidsoap-config:
+	docker run -it -u liquidsoap --rm -v "$(PWD)/liquidsoap:/liquidsoap" moul/liquidsoap liquidsoap --verbose --debug /liquidsoap/main.liq
+
+
 .PHONY: docker-exec-liquidsoap
 docker-exec-liquidsoap:
 	docker exec -it `docker-compose ps -q liquidsoap` /bin/bash
@@ -53,7 +58,7 @@ compose:
 .PHONY: gin
 gin:
 	$(GO) get github.com/codegangsta/gin
-	gin --immediate --port=$(PORT) ./main.go
+	cd radiomand; gin --immediate --port=$(PORT) ./main.go
 
 
 .PHONY: clean
