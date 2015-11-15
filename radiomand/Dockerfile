@@ -22,5 +22,5 @@ RUN apt-get update \
 # Run the project
 COPY . /go/src/app
 WORKDIR /go/src/app
-RUN make
-ENTRYPOINT /go/src/app/radioman
+RUN go build -o radiomand .
+ENTRYPOINT /go/src/app/radiomand

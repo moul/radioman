@@ -1,6 +1,6 @@
-radioman:
-  build: .
-  name: radioman
+radiomand:
+  build: ./radiomand
+  name: radiomand
   restart: always
   volumes:
   - $HOME/Music:$HOME/Music
