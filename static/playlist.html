@@ -28,6 +28,7 @@
       <thead class="bg-darken-2"><tr>
         <th><a href="" ng-click="orderByField='relative_path'; reverseSort=!reverseSort">Path</a></th>
         <th><a href="" ng-click="orderByField='file_size'; reverseSort=!reverseSort">Size</a></th>
+        <th><a href="" ng-click="orderByField='tag.length'; reverseSort=!reverseSort">Length</a></th>
         <th><a href="" ng-click="orderByField='tag.title'; reverseSort=!reverseSort">Title</a></th>
         <th><a href="" ng-click="orderByField='tag.artist'; reverseSort=!reverseSort">Artist</a></th>
         <th><a href="" ng-click="orderByField='tag.album'; reverseSort=!reverseSort">Album</a></th>
@@ -43,6 +44,7 @@
         <tr ng:repeat="track in tracks | dictToArray | orderBy:orderByField:reverseSort">
           <td>{{track.relative_path}}</td>
           <td>{{track.file_size}}</td>
+          <td>{{track.tag.length || "n/a"}}</td>
           <td>{{track.tag.title || "n/a"}}</td>
           <td>{{track.tag.artist || "n/a"}}</td>
           <td>{{track.tag.album || "n/a"}}</td>
