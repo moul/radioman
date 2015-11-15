@@ -17,6 +17,11 @@ all: build
 build: $(RADIOMAND)
 
 
+.PHONY: godep-save
+godep-save:
+	cd radioman; godep save $(shell go list ./...| grep -v vendor)
+
+
 .PHONY: docker-telnet
 docker-telnet:
 	socat readline TCP:$(DOCKER_HOST_IP):2300
