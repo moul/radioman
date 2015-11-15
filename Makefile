@@ -20,9 +20,9 @@ radioman: $(SOURCES)
 
 .PHONY: compose
 compose:
+	docker-compose build radioman
 	docker-compose kill
 	docker-compose rm -f
-	docker-compose build radioman
 	$(COMPOSE_ENV) docker-compose up -d $(COMPOSE_TARGET)
 	docker-compose logs $(COMPOSE_TARGET)
 
