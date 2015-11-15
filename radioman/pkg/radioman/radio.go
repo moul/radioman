@@ -90,8 +90,22 @@ func (r *Radio) InitTelnet() error {
 	return err
 }
 
+func (r *Radio) SkipSong() error {
+	if err := r.Telnet.Open(); err != nil {
+		return err
+	}
+	defer r.Telnet.Close()
+
+	if _, err := r.Telnet.Command("manager.skip"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *Radio) UpdatePlaylistsRoutine() {
 	for {
+		defaultUpdated := false
 		tracksSum := 0
 		for _, playlist := range r.Playlists {
 			if playlist.Path == "" {
@@ -131,6 +145,7 @@ func (r *Radio) UpdatePlaylistsRoutine() {
 				// Set default playlist if needed
 				if r.DefaultPlaylist == nil {
 					r.DefaultPlaylist = playlist
+					defaultUpdated = true
 				}
 			} else {
 				playlist.Status = "empty"
@@ -139,6 +154,10 @@ func (r *Radio) UpdatePlaylistsRoutine() {
 			tracksSum += playlist.Stats.Tracks
 		}
 		r.Stats.Tracks = tracksSum
+
+		if defaultUpdated {
+			r.SkipSong()
+		}
 		time.Sleep(5 * time.Minute)
 	}
 }
@@ -159,13 +178,15 @@ func (r *Radio) StdPopulate() error {
 	r.NewDirectoryPlaylist("iTunes Podcasts", "~/Music/iTunes/iTunes Media/Podcasts/")
 
 	// Add local directory
+	playlistsDirs := []string{"/playlists"}
 	dir, err := os.Getwd()
-	if err == nil {
+	if err == nil && os.Getenv("NO_LOCAL_PLAYLISTS") != "1" {
 		r.NewDirectoryPlaylist("local directory", dir)
+		playlistsDirs = append(playlistsDirs, path.Join(dir, "playlists"))
 	}
 
 	// Add each folders in '/playlists' and './playlists'
-	for _, playlistsDir := range []string{"/playlists", path.Join(dir, "playlists")} {
+	for _, playlistsDir := range playlistsDirs {
 		walker := fs.Walk(playlistsDir)
 		for walker.Step() {
 			if walker.Path() == playlistsDir {

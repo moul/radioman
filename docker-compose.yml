@@ -2,6 +2,8 @@ radiomand:
   build: ./radioman
   name: radiomand
   restart: always
+  environment:
+  - NO_LOCAL_PLAYLISTS=1
   volumes:
   - $HOME/Music:$HOME/Music
   - /etc/localtime:/etc/localtime:ro

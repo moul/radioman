@@ -43,14 +43,10 @@ func defaultRadioEndpoint(c *gin.Context) {
 }
 
 func radioSkipSongEndpoint(c *gin.Context) {
-	if err := Radio.Telnet.Open(); err != nil {
+	// FIXME: return json with detail
+	if err := Radio.SkipSong(); err != nil {
 		logrus.Errorf("Failed to connect to liquidsoap: %v", err)
 		return
-	}
-	defer Radio.Telnet.Close()
-
-	if _, err := Radio.Telnet.Command("manager.skip"); err != nil {
-		logrus.Errorf("Failed to execute manager.skip: %v", err)
 	}
 }
 
