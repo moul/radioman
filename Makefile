@@ -5,6 +5,8 @@ COMPOSE_TARGET ?=
 PASSWORD ?= toor
 COMPOSE_ENV ?= ICECAST_SOURCE_PASSWORD="$(PASSWORD)" ICECAST_ADMIN_PASSWORD="$(PASSWORD)" ICECAST_PASSWORD="$(PASSWORD)" ICECAST_RELAY_PASSWORD="$(PASSWORD)"
 SOURCES := $(find . -name "*.go")
+DOCKER_HOST ?= tcp://127.0.0.1:2376
+DOCKER_HOST_IP := $(shell echo $(DOCKER_HOST) | cut -d/ -f3 | cut -d: -f1)
 
 
 all: build
@@ -12,6 +14,11 @@ all: build
 
 .PHONY: build
 build: radioman
+
+
+.PHONY: docker-telnet
+docker-telnet:
+	socat readline TCP:$(DOCKER_HOST_IP):2300
 
 
 radioman: $(SOURCES)
