@@ -99,3 +99,19 @@ radiomanApp.filter('dictToArray', function() {
     });
   };
 });
+
+radiomanApp.filter('trackDuration', function() {
+  return function (duration) {
+    var seconds = duration % 60;
+    var minutes = Math.floor(duration / 60);
+    var output = new Array();
+    if (minutes >= 1) {
+      output.push(minutes + "m");
+    }
+    if (seconds >= 1) {
+      output.push(seconds + "s");
+    }
+
+    return output.join(" ");
+  };
+});

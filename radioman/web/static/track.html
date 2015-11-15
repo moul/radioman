@@ -7,8 +7,8 @@
   <table class="table-light overflow-hidden bg-white border rounded">
     <thead class="bg-darken-2"><tr><th colspan="2">Info</th></tr></thead>
     <tbody>
-      <tr><td class="bg-darken-1">Hash</td><td>{{track.hash}}</td></tr>
       <tr><td class="bg-darken-1">Status</td><td>{{track.status}}</td></tr>
+      <tr><td class="bg-darken-1">Hash</td><td>{{track.hash}}</td></tr>
       <tr><td class="bg-darken-1">Title</td><td>{{track.title || "n/a"}}</td></tr>
       <tr>
         <td class="bg-darken-1">Creation date</td>
@@ -29,15 +29,15 @@
         <td class="bg-darken-1">File modification time</td>
         <td am-time-ago="track.file_modification_time" title="{{track.file_modification_time}}">{{track.file_modification_time}}</td>
       </tr>
-      <tr><td class="bg-darken-1">Playlists</td><td>{{track.playlists}}</td></tr>
+      <tr><td class="bg-darken-1">Playlists</td><td>{{track.playlists || "n/a"}}</td></tr>
     </tbody>
     <thead class="bg-darken-2"><tr><th colspan="2">Taglib</th></tr></thead>
     <tbody>
-      <tr><td class="bg-darken-1">Length</td><td>{{track.tag.length}}</td></tr>
-      <tr><td class="bg-darken-1">Title</td><td>{{track.tag.title}}</td></tr>
-      <tr><td class="bg-darken-1">Artist</td><td>{{track.tag.artist}}</td></tr>
-      <tr><td class="bg-darken-1">Album</td><td>{{track.tag.album}}</td></tr>
-      <tr><td class="bg-darken-1">Status</td><td>{{track.status}}</td></tr>
+      <tr><td class="bg-darken-1">Length</td><td>{{(track.tag.length | trackDuration) || "n/a"}}</td></tr>
+      <tr><td class="bg-darken-1">Title</td><td>{{track.tag.title || "n/a"}}</td></tr>
+      <tr><td class="bg-darken-1">Artist</td><td>{{track.tag.artist || "n/a"}}</td></tr>
+      <tr><td class="bg-darken-1">Album</td><td>{{track.tag.album || "n/a"}}</td></tr>
+      <tr><td class="bg-darken-1">Status</td><td>{{track.status || "n/a"}}</td></tr>
     </tbody>
   </table>
 </section>
