@@ -1,7 +1,7 @@
 PORT ?= 4343
 GOENV ?= GO15VENDOREXPERIMENT=1
 GO ?= $(GOENV) go
-COMPOSE_TARGET ?= radioman
+COMPOSE_TARGET ?=
 PASSWORD ?= toor
 COMPOSE_ENV ?= ICECAST_SOURCE_PASSWORD="$(PASSWORD)" ICECAST_ADMIN_PASSWORD="$(PASSWORD)" ICECAST_PASSWORD="$(PASSWORD)" ICECAST_RELAY_PASSWORD="$(PASSWORD)"
 SOURCES := $(find . -name "*.go")
@@ -24,7 +24,7 @@ compose:
 	docker-compose rm -f
 	docker-compose build radioman
 	$(COMPOSE_ENV) docker-compose up -d $(COMPOSE_TARGET)
-	docker-compose logs
+	docker-compose logs $(COMPOSE_TARGET)
 
 
 .PHONY: gin

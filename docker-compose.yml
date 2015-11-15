@@ -12,7 +12,9 @@ radioman:
 liquidsoap:
   image: moul/liquidsoap
   volumes:
-  command: /supervisor.sh liquidsoap -v --debug /liquidsoap/main.liq
+  # command: /supervisor.sh liquidsoap -v --debug /liquidsoap/main.liq
+  command: liquidsoap -v --debug /liquidsoap/main.liq
+  user: liquidsoap
   restart: always
   volumes:
   - ./liquidsoap:/liquidsoap
