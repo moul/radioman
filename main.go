@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"math/rand"
+	"net"
 	"net/http"
 	"os"
 	"path"
@@ -238,6 +240,8 @@ func main() {
 
 	router.GET("/api/radios/default", defaultRadioEndpoint)
 
+	router.POST("/api/radios/default/skip-song", radioSkipSongEndpoint)
+
 	router.GET("/api/liquidsoap/getNextSong", getNextSongEndpoint)
 
 	port := os.Getenv("PORT")
@@ -353,6 +357,21 @@ func playlistsEndpoint(c *gin.Context) {
 func defaultRadioEndpoint(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"radio": R,
+	})
+}
+
+func radioSkipSongEndpoint(c *gin.Context) {
+	// radio := R
+
+	command := "/radioman(dot)mp3.skip"
+	dest := strings.Replace(os.Getenv("LIQUIDSOAP_PORT_2300_TCP"), "tcp://", "", -1)
+	conn, _ := net.Dial("tcp", dest)
+	fmt.Fprintf(conn, "%s\n", command)
+	message, _ := bufio.NewReader(conn).ReadString('\n')
+	fmt.Printf("Message from server: %v", message)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "done",
 	})
 }
 

@@ -12,7 +12,7 @@
   </head>
   <body ng-app="radiomanApp">
     <nav class="clearfix white bg-black">
-      <section class="container">
+      <section class="container" ng-controller="ShortcutsCtrl">
         <div class="sm-col">
           <a href="/" class="btn py1">Radioman</a>
         </div>
@@ -20,8 +20,13 @@
           <a href="#/playlists" class="btn py1">Playlists</a>
         </div>
         <div class="sm-col-right">
+          <a href="" ng-click="skipSong()" class="btn py1">➤➤</a>
+        </div>
+        <!--
+        <div class="sm-col-right">
           <a href="https://github.com/moul/radioman" class="btn py1">Fork me on Github</a>
         </div>
+        -->
       </section>
     </nav>
     <div ng-controller="MainCtrl">

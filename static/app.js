@@ -7,6 +7,14 @@ radiomanApp.controller('MainCtrl', function($scope, $route, $routeParams, $locat
   $scope.basehref = document.location.protocol + '//' + document.location.host;
 });
 
+radiomanApp.controller('ShortcutsCtrl', function($scope, $http) {
+  $scope.skipSong = function() {
+    $http.post('/api/radios/default/skip-song', {}).success(function (data) {
+      console.log('song skipped');
+    });
+  };
+});
+
 radiomanApp.config(function($routeProvider, $locationProvider) {
   $routeProvider
     .when('/playlists', {
