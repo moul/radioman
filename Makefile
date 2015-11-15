@@ -50,7 +50,7 @@ $(RADIOMAND): $(SOURCES)
 compose:
 	$(DOCKER_COMPOSE) build radiomand
 	$(DOCKER_COMPOSE) kill
-	$(DOCKER_COMPOSE) rm -f
+	$(DOCKER_COMPOSE) rm -fv
 	$(COMPOSE_ENV) $(DOCKER_COMPOSE) up -d $(COMPOSE_TARGET)
 	$(DOCKER_COMPOSE) logs $(COMPOSE_TARGET)
 
@@ -65,3 +65,5 @@ gin:
 clean:
 	rm -f radiomand-*-*
 	find . -name gin-bin -delete
+	$(DOCKER_COMPOSE) kill
+	$(DOCKER_COMPOSE) rm -fv
