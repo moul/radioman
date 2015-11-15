@@ -42,11 +42,6 @@ func (t *LiquidsoapTelnet) Close() {
 }
 
 func (t *LiquidsoapTelnet) Command(command string) (string, error) {
-	if err := t.Open(); err != nil {
-		logrus.Errorf("Failed to connect to liquidsoap telnet socket")
-		return "", err
-	}
-	defer t.Close()
 	logrus.Infof("Sending to telnet: %q", command)
 	fmt.Fprintf(t.Conn, "%s\n", command)
 	message, err := bufio.NewReader(t.Conn).ReadString('\n')
