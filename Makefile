@@ -4,7 +4,7 @@ GO ?= $(GOENV) go
 COMPOSE_TARGET ?=
 ADMIN_PASSWORD ?= radioman
 COMPOSE_ENV ?= ICECAST_SOURCE_PASSWORD="$(ADMIN_PASSWORD)" ICECAST_ADMIN_PASSWORD="$(ADMIN_PASSWORD)" ICECAST_PASSWORD="$(ADMIN_PASSWORD)" ICECAST_RELAY_PASSWORD="$(ADMIN_PASSWORD)"
-SOURCES := $(find . -name "*.go")
+SOURCES := $(shell find . -name "*.go")
 DOCKER_HOST ?= tcp://127.0.0.1:2376
 DOCKER_HOST_IP := $(shell echo $(DOCKER_HOST) | cut -d/ -f3 | cut -d: -f1)
 DOCKER_COMPOSE ?= docker-compose -pradioman
@@ -43,7 +43,7 @@ docker-exec-icecast:
 
 
 $(RADIOMAND): $(SOURCES)
-	$(GO) build -o $@ ./radiomand
+	$(GO) build -o $@ ./radioman/cmd/radiomand
 
 
 .PHONY: compose
@@ -58,9 +58,10 @@ compose:
 .PHONY: gin
 gin:
 	$(GO) get github.com/codegangsta/gin
-	cd radiomand; gin --immediate --port=$(PORT) ./main.go
+	cd radioman/cmd/radiomand; WEBDIR=../../web $(GOENV) gin --immediate --port=$(PORT) ./main.go
 
 
 .PHONY: clean
 clean:
-	rm -f radiomand-*-* gin-bin
+	rm -f radiomand-*-*
+	find . -name gin-bin -delete

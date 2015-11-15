@@ -10,12 +10,13 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	"github.com/kr/fs"
+	"github.com/moul/radioman/radioman/pkg/radioman"
 )
 
-var R *Radio
+var R *radioman.Radio
 
 func init() {
-	R = NewRadio("RadioMan")
+	R = radioman.NewRadio("RadioMan")
 
 	R.InitTelnet()
 
@@ -76,9 +77,14 @@ func main() {
 	})
 
 	// static files
-	router.StaticFile("/", "./static/index.html")
-	router.Static("/static", "./static")
-	router.Static("/bower_components", "./bower_components")
+	//staticPrefix := "/web"
+	staticPrefix := "./radioman/web"
+	if os.Getenv("WEBDIR") != "" {
+		staticPrefix = os.Getenv("WEBDIR")
+	}
+	router.StaticFile("/", path.Join(staticPrefix, "static/index.html"))
+	router.Static("/static", path.Join(staticPrefix, "static"))
+	router.Static("/bower_components", path.Join(staticPrefix, "bower_components"))
 
 	router.GET("/api/playlists", playlistsEndpoint)
 	router.GET("/api/playlists/:name", playlistDetailEndpoint)
@@ -96,7 +102,7 @@ func main() {
 		port = "8000"
 	}
 
-	go updatePlaylistsRoutine(radio)
+	go radio.UpdatePlaylistsRoutine()
 
 	router.Run(fmt.Sprintf(":%s", port))
 }

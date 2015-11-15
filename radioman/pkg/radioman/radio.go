@@ -1,4 +1,4 @@
-package main
+package radioman
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/kr/fs"
+	"github.com/moul/radioman/radioman/pkg/liquidsoap"
 )
 
 type Radio struct {
@@ -20,8 +21,8 @@ type Radio struct {
 		Playlists int `json:"playlists"`
 		Tracks    int `json:"tracks"`
 	} `json:"stats"`
-	Playlists []*Playlist       `json:"-"`
-	Telnet    *LiquidsoapTelnet `json:"-"`
+	Playlists []*Playlist        `json:"-"`
+	Telnet    *liquidsoap.Telnet `json:"-"`
 }
 
 func (r *Radio) NewPlaylist(name string) (*Playlist, error) {
@@ -74,7 +75,7 @@ func (r *Radio) InitTelnet() error {
 	liquidsoapHost := liquidsoapAddr[0]
 	liquidsoapPort, _ := strconv.Atoi(liquidsoapAddr[1])
 
-	r.Telnet = NewLiquidsoapTelnet(liquidsoapHost, liquidsoapPort)
+	r.Telnet = liquidsoap.NewTelnet(liquidsoapHost, liquidsoapPort)
 
 	if err := r.Telnet.Open(); err != nil {
 		logrus.Fatalf("Failed to connect to liquidsoap")
@@ -87,7 +88,7 @@ func (r *Radio) InitTelnet() error {
 	return err
 }
 
-func updatePlaylistsRoutine(r *Radio) {
+func (r *Radio) UpdatePlaylistsRoutine() {
 	for {
 		tracksSum := 0
 		for _, playlist := range r.Playlists {

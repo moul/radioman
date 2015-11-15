@@ -1,5 +1,5 @@
 radiomand:
-  build: ./radiomand
+  build: ./radioman
   name: radiomand
   restart: always
   volumes:
