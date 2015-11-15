@@ -20,19 +20,29 @@ set("buffer.path", "/tmp")
 set("decoding.buffer_length", 10.)
 
 
+# Telnet variables
+radiomand_url = interactive.string("radiomand_url", "http://127.0.0.1:8000")
+
+
+# Helpers
+def request_radiomand(path) =
+    command = "wget -qO - #{radiomand_url()}/#{path}"
+    log("Executing: #{command}")
+    get_process_lines(command)
+end
+
+
 # Input
 source = fallback([
     request.dynamic(
         id="scheduler",
         fun () ->
-        request.create(
-            list.hd(
-                get_process_lines(
-                    "wget -qO - http://172.17.0.8:8000/api/liquidsoap/getNextSong"
-                    )
+            request.create(
+                list.hd(
+                    request_radiomand("api/liquidsoap/getNextSong")
                 )
             )
-        ),
+    ),
     blank()
 ])
 
@@ -52,4 +62,5 @@ def outputs(s) =
   icy(%vorbis, mount="/vorbis", s)
   output.dummy(id="manager", s)
 end
+
 outputs(source)
