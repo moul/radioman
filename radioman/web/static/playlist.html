@@ -42,7 +42,11 @@
       </tr></thead>
       <tbody>
         <tr ng:repeat="track in tracks | dictToArray | orderBy:orderByField:reverseSort">
-          <td>{{track.relative_path}}</td>
+          <td>
+            <a href="#/tracks/{{track.hash}}">
+              {{track.relative_path}}
+            </a>
+          </td>
           <td>{{track.file_size}}</td>
           <td>{{track.tag.length || "n/a"}}</td>
           <td>{{track.tag.title || "n/a"}}</td>

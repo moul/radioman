@@ -25,6 +25,10 @@ radiomanApp.config(function($routeProvider, $locationProvider) {
       templateUrl: '/static/playlist.html',
       controller: 'PlaylistViewCtrl'
     })
+    .when('/tracks/:name', {
+      templateUrl: '/static/track.html',
+      controller: 'TrackViewCtrl'
+    })
     .otherwise({
       templateUrl: '/static/home.html',
       controller: 'HomeCtrl'
@@ -62,6 +66,12 @@ radiomanApp.controller('PlaylistViewCtrl', function($scope, $http, $routeParams)
   });
   $http.get('/api/playlists/' + $routeParams.name + '/tracks').success(function (data) {
     $scope.tracks = data.tracks;
+  });
+});
+
+radiomanApp.controller('TrackViewCtrl', function($scope, $http, $routeParams) {
+  $http.get('/api/tracks/' + $routeParams.name).success(function (data) {
+    $scope.track = data.track;
   });
 });
 

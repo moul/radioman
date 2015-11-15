@@ -63,6 +63,16 @@ func (r *Radio) GetPlaylistByName(name string) (*Playlist, error) {
 	return nil, fmt.Errorf("no such playlist")
 }
 
+func (r *Radio) GetTrackByHash(hash string) (*Track, error) {
+	// FIXME: do not iterate over playlists, use a global map instead
+	for _, playlist := range r.Playlists {
+		if track, found := playlist.Tracks[hash]; found {
+			return track, nil
+		}
+	}
+	return nil, fmt.Errorf("no such track")
+}
+
 func NewRadio(name string) *Radio {
 	return &Radio{
 		Name:             name,

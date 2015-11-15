@@ -57,6 +57,20 @@ func playlistDetailEndpoint(c *gin.Context) {
 	})
 }
 
+func trackDetailEndpoint(c *gin.Context) {
+	hash := c.Param("hash")
+	track, err := Radio.GetTrackByHash(hash)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"track": track,
+	})
+}
+
 func playlistUpdateEndpoint(c *gin.Context) {
 	name := c.Param("name")
 	playlist, err := Radio.GetPlaylistByName(name)

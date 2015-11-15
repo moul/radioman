@@ -46,6 +46,8 @@ func main() {
 	router.GET("/api/radios/default", defaultRadioEndpoint)
 	router.POST("/api/radios/default/skip-song", radioSkipSongEndpoint)
 
+	router.GET("/api/tracks/:hash", trackDetailEndpoint)
+
 	router.GET("/api/liquidsoap/getNextSong", getNextSongEndpoint)
 
 	port := os.Getenv("PORT")
