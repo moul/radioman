@@ -64,6 +64,10 @@ type Radio struct {
 
 var R *Radio
 
+func (t *Track) IsValid() bool {
+	return t.Tag.Bitrate >= 64
+}
+
 func (p *Playlist) NewLocalTrack(path string) (*Track, error) {
 	if track, err := p.GetTrackByPath(path); err == nil {
 		return track, nil
@@ -230,27 +234,51 @@ func main() {
 }
 
 func getNextSongEndpoint(c *gin.Context) {
-	playlist := R.DefaultPlaylist
 	// FIXME: shuffle playlist instead of getting a random track
 	// FIXME: do not iterate over a map
+
+	playlist := R.DefaultPlaylist
 	track, err := playlist.GetRandomTrack()
-	if err != nil {
-		c.String(http.StatusNotFound, fmt.Sprintf("%v", err))
+	if err == nil {
+		c.String(http.StatusOK, track.Path)
 		return
 	}
 
-	c.String(http.StatusOK, track.Path)
+	for _, playlist := range R.Playlists {
+		track, err := playlist.GetRandomTrack()
+		if err != nil {
+			continue
+		}
+		c.String(http.StatusOK, track.Path)
+		return
+	}
+
+	c.String(http.StatusNotFound, "# cannot get a random song, are your playlists empty ?")
 }
 
 func (p *Playlist) GetRandomTrack() (*Track, error) {
-	i := rand.Intn(len(p.Tracks))
-
+	validFiles := 0
 	for _, track := range p.Tracks {
+		if track.IsValid() {
+			validFiles++
+		}
+	}
+
+	if validFiles == 0 {
+		return nil, fmt.Errorf("there is no available track")
+	}
+
+	i := rand.Intn(validFiles)
+	for _, track := range p.Tracks {
+		if !track.IsValid() {
+			continue
+		}
 		if i <= 0 {
 			return track, nil
 		}
 		i--
 	}
+
 	return nil, fmt.Errorf("cannot get a random track")
 }
 
