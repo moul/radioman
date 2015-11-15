@@ -141,23 +141,39 @@ func init() {
 	if err == nil {
 		R.NewDirectoryPlaylist("local directory", dir)
 	}
-	playlistsDir := path.Join(dir, "playlists")
-	walker := fs.Walk(playlistsDir)
-	for walker.Step() {
-		if walker.Path() == playlistsDir {
-			continue
-		}
-		if err := walker.Err(); err != nil {
-			logrus.Warnf("walker error: %v", err)
-			continue
-		}
-		realpath, err := filepath.EvalSymlinks(walker.Path())
-		if err != nil {
-			logrus.Warnf("filepath.EvalSymlinks error for %q: %v", walker.Path(), err)
-			continue
-		}
 
-		R.NewDirectoryPlaylist(fmt.Sprintf("playlist: %s", walker.Stat().Name()), realpath)
+	for _, playlistsDir := range []string{"/playlists", path.Join(dir, "playlists")} {
+		walker := fs.Walk(playlistsDir)
+		for walker.Step() {
+			if walker.Path() == playlistsDir {
+				continue
+			}
+			if err := walker.Err(); err != nil {
+				logrus.Warnf("walker error: %v", err)
+				continue
+			}
+
+			var realpath string
+			if walker.Stat().IsDir() {
+				realpath = walker.Path()
+				walker.SkipDir()
+			} else {
+				realpath, err = filepath.EvalSymlinks(walker.Path())
+				if err != nil {
+					logrus.Warnf("filepath.EvalSymlinks error for %q: %v", walker.Path(), err)
+					continue
+				}
+			}
+
+			stat, err := os.Stat(realpath)
+			if err != nil {
+				logrus.Warnf("os.Stat error: %v", err)
+				continue
+			}
+			if stat.IsDir() {
+				R.NewDirectoryPlaylist(fmt.Sprintf("playlist: %s", walker.Stat().Name()), realpath)
+			}
+		}
 	}
 
 	playlist, _ := R.GetPlaylistByName("iTunes Music")

@@ -4,6 +4,7 @@ radioman:
   volumes:
   - $HOME/Music:$HOME/Music
   - /etc/localtime:/etc/localtime:ro
+  - ./playlists:/playlists
   ports:
   - 4343:8000
   links:
@@ -20,6 +21,7 @@ liquidsoap:
   - ./liquidsoap:/liquidsoap
   - $HOME/Music:$HOME/Music
   - /etc/localtime:/etc/localtime:ro
+  - ./playlists:/playlists
   links:
   # - radioman
   - icecast
