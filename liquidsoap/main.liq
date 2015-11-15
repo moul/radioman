@@ -20,7 +20,20 @@ set("decoding.buffer_length", 10.)
 
 
 # Input
-input = mksafe(blank())
+source = fallback([
+    request.dynamic(
+        id="scheduler",
+        fun () ->
+        request.create(
+            list.hd(
+                get_process_lines(
+                    "wget -qO - http://172.17.0.8:8000/api/liquidsoap/getNextSong"
+                    )
+                )
+            )
+        ),
+    blank()
+])
 
 
 # Outputs
@@ -30,6 +43,6 @@ output.icecast(
   port=int_of_string(getenv("ICECAST_PORT_8000_TCP_PORT")),
   password=getenv("ICECAST_SOURCE_PASSWORD"),
   mount="/radioman.mp3",
-  input
+  source
 )
-output.dummy(blank())
+# output.dummy(blank())
