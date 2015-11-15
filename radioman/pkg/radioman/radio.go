@@ -107,57 +107,32 @@ func (r *Radio) UpdatePlaylistsRoutine() {
 	for {
 		defaultUpdated := false
 		tracksSum := 0
+
 		for _, playlist := range r.Playlists {
-			if playlist.Path == "" {
-				logrus.Debugf("Playlist %q is not dynamic, skipping update", playlist.Name)
+			// automatically update playlist
+			if err := playlist.AutoUpdate(); err != nil {
+				playlist.Status = "error"
+				logrus.Warnf("Failed to update playlist: %v", err)
 				continue
 			}
 
-			logrus.Infof("Updating playlist %q", playlist.Name)
-			playlist.Status = "updating"
-
-			walker := fs.Walk(playlist.Path)
-			for walker.Step() {
-				if err := walker.Err(); err != nil {
-					logrus.Warnf("walker error: %v", err)
-					continue
-				}
-				stat := walker.Stat()
-
-				if stat.IsDir() {
-					switch stat.Name() {
-					case ".git", "bower_components":
-						walker.SkipDir()
-					}
-				} else {
-					switch stat.Name() {
-					case ".DS_Store":
-						continue
-					}
-
-					playlist.NewLocalTrack(walker.Path())
-				}
-			}
-
-			logrus.Infof("Playlist %q updated, %d tracks", playlist.Name, len(playlist.Tracks))
-			if playlist.Stats.Tracks > 0 {
-				playlist.Status = "ready"
-				// Set default playlist if needed
-				if r.DefaultPlaylist == nil {
-					r.DefaultPlaylist = playlist
-					defaultUpdated = true
-				}
-			} else {
-				playlist.Status = "empty"
-			}
-			playlist.ModificationDate = time.Now()
 			tracksSum += playlist.Stats.Tracks
+
+			// Set default playlist if needed
+			if r.DefaultPlaylist == nil && playlist.Status == "ready" {
+				r.DefaultPlaylist = playlist
+				defaultUpdated = true
+			}
 		}
+
 		r.Stats.Tracks = tracksSum
 
+		// when getting a new playlist for the first time, a skipsong will act like the first "play"
 		if defaultUpdated {
 			r.SkipSong()
 		}
+
+		// sleep 5 minutes before next run
 		time.Sleep(5 * time.Minute)
 	}
 }
@@ -221,4 +196,25 @@ func (r *Radio) StdPopulate() error {
 	}
 
 	return nil
+}
+
+func (r *Radio) GetNextSong() (*Track, error) {
+	// FIXME: shuffle playlist instead of getting a random track
+	// FIXME: do not iterate over a map
+
+	playlist := r.DefaultPlaylist
+	track, err := playlist.GetRandomTrack()
+	if err == nil {
+		return track, nil
+	}
+
+	for _, playlist := range r.Playlists {
+		track, err := playlist.GetRandomTrack()
+		if err != nil {
+			continue
+		}
+		return track, nil
+	}
+
+	return nil, fmt.Errorf("no such next song, are your playlists empty ?")
 }

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/kr/fs"
 	"github.com/wtolson/go-taglib"
 )
 
@@ -105,4 +106,50 @@ func (p *Playlist) GetRandomTrack() (*Track, error) {
 	}
 
 	return nil, fmt.Errorf("cannot get a random track")
+}
+
+func (p *Playlist) AutoUpdate() error {
+	if p.Path == "" {
+		logrus.Debugf("Playlist %q is not dynamic, skipping update", p.Name)
+		return nil
+	}
+
+	// if we are here, the playlist is based on local file system
+	logrus.Infof("Updating playlist %q", p.Name)
+
+	p.Status = "updating"
+
+	walker := fs.Walk(p.Path)
+
+	for walker.Step() {
+		if err := walker.Err(); err != nil {
+			logrus.Warnf("walker error: %v", err)
+			continue
+		}
+		stat := walker.Stat()
+
+		if stat.IsDir() {
+			switch stat.Name() {
+			case ".git", "bower_components":
+				walker.SkipDir()
+			}
+		} else {
+			switch stat.Name() {
+			case ".DS_Store":
+				continue
+			}
+
+			p.NewLocalTrack(walker.Path())
+		}
+	}
+
+	logrus.Infof("Playlist %q updated, %d tracks", p.Name, len(p.Tracks))
+	if p.Stats.Tracks > 0 {
+		p.Status = "ready"
+	} else {
+		p.Status = "empty"
+	}
+	p.ModificationDate = time.Now()
+
+	return nil
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/Sirupsen/logrus"
@@ -8,26 +9,13 @@ import (
 )
 
 func getNextSongEndpoint(c *gin.Context) {
-	// FIXME: shuffle playlist instead of getting a random track
-	// FIXME: do not iterate over a map
-
-	playlist := Radio.DefaultPlaylist
-	track, err := playlist.GetRandomTrack()
-	if err == nil {
-		c.String(http.StatusOK, track.Path)
+	track, err := Radio.GetNextSong()
+	if err != nil {
+		c.String(http.StatusNotFound, fmt.Sprintf("# failed to get the next song: %v", err))
 		return
 	}
 
-	for _, playlist := range Radio.Playlists {
-		track, err := playlist.GetRandomTrack()
-		if err != nil {
-			continue
-		}
-		c.String(http.StatusOK, track.Path)
-		return
-	}
-
-	c.String(http.StatusNotFound, "# cannot get a random song, are your playlists empty ?")
+	c.String(http.StatusOK, track.Path)
 }
 
 func playlistsEndpoint(c *gin.Context) {
@@ -43,11 +31,16 @@ func defaultRadioEndpoint(c *gin.Context) {
 }
 
 func radioSkipSongEndpoint(c *gin.Context) {
-	// FIXME: return json with detail
 	if err := Radio.SkipSong(); err != nil {
 		logrus.Errorf("Failed to connect to liquidsoap: %v", err)
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err,
+		})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"status": "ok",
+	})
 }
 
 func playlistDetailEndpoint(c *gin.Context) {
