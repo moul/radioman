@@ -70,6 +70,22 @@ radiomanApp.controller('PlaylistViewCtrl', function($scope, $http, $routeParams)
 });
 
 radiomanApp.controller('TrackViewCtrl', function($scope, $http, $routeParams) {
+  $scope.playTrack = function(track) {
+    var input = {
+      hash: track.hash
+    };
+    $http.post('/api/radios/default/play-track', input).success(function (data) {
+      console.log(data);
+    });
+  };
+  $scope.setNextTrack = function(track) {
+    var input = {
+      hash: track.hash
+    };
+    $http.post('/api/radios/default/set-next-track', input).success(function (data) {
+      console.log(data);
+    });
+  };
   $http.get('/api/tracks/' + $routeParams.name).success(function (data) {
     $scope.track = data.track;
   });

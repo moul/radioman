@@ -33,17 +33,19 @@ end
 
 
 # Input
-source = fallback([
-    request.dynamic(
-        id="scheduler",
-        fun () ->
-            request.create(
-                list.hd(
-                    request_radiomand("api/liquidsoap/getNextSong")
-                )
+requests = request.queue(id="request")
+scheduler = request.dynamic(
+    id="scheduler",
+    fun () ->
+        request.create(
+            list.hd(
+                request_radiomand("api/liquidsoap/getNextSong")
             )
-    ),
-    blank()
+        )
+    )
+
+source = fallback(id="switcher", track_sensitive=true, [
+    requests, scheduler, blank(duration=5.)
 ])
 
 

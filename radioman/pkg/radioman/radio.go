@@ -113,6 +113,19 @@ func (r *Radio) SkipSong() error {
 	return nil
 }
 
+func (r *Radio) PlayTrack(track *Track) error {
+	if err := r.Telnet.Open(); err != nil {
+		return err
+	}
+	defer r.Telnet.Close()
+
+	if _, err := r.Telnet.Command(fmt.Sprintf("request.push %s", track.Path)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *Radio) UpdatePlaylistsRoutine() {
 	for {
 		defaultUpdated := false

@@ -43,6 +43,44 @@ func radioSkipSongEndpoint(c *gin.Context) {
 	})
 }
 
+func radioPlayTrackEndpoint(c *gin.Context) {
+	var json struct {
+		Hash string `form:"hash" json:"hash"`
+	}
+
+	if err := c.BindJSON(&json); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+		return
+	}
+
+	track, err := Radio.GetTrackByHash(json.Hash)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err,
+		})
+	}
+
+	if err := Radio.PlayTrack(track); err != nil {
+		logrus.Errorf("Failed to connect to liquidsoap: %v", err)
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "ok",
+	})
+}
+
+func radioSetNextTrackEndpoint(c *gin.Context) {
+	c.JSON(http.StatusNotFound, gin.H{
+		"error": "not yet implemented",
+	})
+}
+
 func playlistDetailEndpoint(c *gin.Context) {
 	name := c.Param("name")
 	playlist, err := Radio.GetPlaylistByName(name)
@@ -89,6 +127,7 @@ func playlistUpdateEndpoint(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err,
 		})
+		return
 	}
 
 	if json.SetDefault {

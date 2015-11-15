@@ -1,6 +1,9 @@
 <section class="container">
   <h2>Track: {{ track.path  }}</h2>
 
+  <a href="" ng-click="playTrack(track)" class="btn btn-outline nowrap">Play now</a>
+  <a href="" ng-click="setNextTrack(track)" class="btn btn-outline nowrap">Set next</a>
+
   <table class="table-light overflow-hidden bg-white border rounded">
     <thead class="bg-darken-2"><tr><th colspan="2">Info</th></tr></thead>
     <tbody>
