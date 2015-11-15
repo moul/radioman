@@ -1,10 +1,38 @@
 PORT ?= 4343
-GO ?= GO15VENDOREXPERIMENT=1 go
+GOENV ?= GO15VENDOREXPERIMENT=1
+GO ?= $(GOENV) go
+COMPOSE_TARGET ?= radioman
+PASSWORD ?= toor
+COMPOSE_ENV ?= ICECAST_SOURCE_PASSWORD="$(PASSWORD)" ICECAST_ADMIN_PASSWORD="$(PASSWORD)" ICECAST_PASSWORD="$(PASSWORD)" ICECAST_RELAY_PASSWORD="$(PASSWORD)"
+SOURCES := $(find . -name "*.go")
 
 
-build:
-	$(GO) build
+all: build
 
+
+.PHONY: build
+build: radioman
+
+
+radioman: $(SOURCES)
+	$(GO) build -o $@ .
+
+
+.PHONY: compose
+compose:
+	docker-compose kill
+	docker-compose rm -f
+	docker-compose build radioman
+	$(COMPOSE_ENV) docker-compose up -d $(COMPOSE_TARGET)
+	docker-compose logs
+
+
+.PHONY: gin
 gin:
 	$(GO) get github.com/codegangsta/gin
 	gin --immediate --port=$(PORT) ./main.go
+
+
+.PHONY: clean
+clean:
+	rm -f radioman gin-bin

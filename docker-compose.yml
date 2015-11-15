@@ -6,8 +6,8 @@ radioman:
   - /etc/localtime:/etc/localtime:ro
   ports:
   - 4343:8000
-  # links:
-  # - liquidsoap
+  links:
+  - liquidsoap
 
 liquidsoap:
   image: moul/liquidsoap
@@ -19,10 +19,10 @@ liquidsoap:
   - $HOME/Music:$HOME/Music
   - /etc/localtime:/etc/localtime:ro
   links:
-  - radioman
+  # - radioman
   - icecast
   ports:
-  - 8000
+  - 5555:8000
   environment:
   - ICECAST_SOURCE_PASSWORD
 
