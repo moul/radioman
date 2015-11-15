@@ -217,6 +217,7 @@ func main() {
 
 	router.GET("/api/playlists", playlistsEndpoint)
 	router.GET("/api/playlists/:name", playlistDetailEndpoint)
+	router.PATCH("/api/playlists/:name", playlistUpdateEndpoint)
 	router.GET("/api/playlists/:name/tracks", playlistTracksEndpoint)
 
 	router.GET("/api/radios/default", defaultRadioEndpoint)
@@ -348,6 +349,35 @@ func playlistDetailEndpoint(c *gin.Context) {
 		})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"playlist": playlist,
+	})
+}
+
+func playlistUpdateEndpoint(c *gin.Context) {
+	name := c.Param("name")
+	playlist, err := R.GetPlaylistByName(name)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err,
+		})
+		return
+	}
+
+	var json struct {
+		SetDefault bool `form:"default" json:"default"`
+	}
+
+	if err := c.BindJSON(&json); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+	}
+
+	if json.SetDefault {
+		R.DefaultPlaylist = playlist
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"playlist": playlist,
 	})

@@ -1,7 +1,7 @@
 <section class="container">
   <div class="overflow-scroll">
     <h3>Playlists</h3>
-    <table class="table-light overflow-hidden bg-white border rounded">
+    <table class="table-light bg-white border rounded">
       <thead class="bg-darken-1">
         <tr>
           <th><a href="" ng-click="orderByField='status'; reverseSort=!reverseSort">Status</a></th>
@@ -10,6 +10,7 @@
           <th><a href="" ng-click="orderByField='path'; reverseSort=!reverseSort">Path</a></th>
           <th><a href="" ng-click="orderByField='creation_date'; reverseSort=!reverseSort">Created</a></th>
           <th><a href="" ng-click="orderByField='modification_date'; reverseSort=!reverseSort">Modified</a></th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -17,9 +18,12 @@
           <td class="py2">{{p.status}}</td>
           <td class="py2"><a href="#/playlists/{{p.name}}">{{p.name}}</a></td>
           <td class="py2">{{p.stats.tracks}}</td>
-          <td class="py2">{{p.path || "n/a"}}</td>
+          <td class="py2 break-word" style="max-width:200px; font-size:0.8em">{{p.path || "n/a"}}</td>
           <td class="py2" am-time-ago="p.creation_date" title="{{p.creation_date}}">{{p.creation_date}}</td>
           <td class="py2" am-time-ago="p.modification_date" title="{{p.modification_date}}">{{p.modification_date}}</td>
+          <td class="py2">
+            <a href="" ng-click="makeDefault(p)" class="btn btn-outline nowrap">Make def.</a>
+          </td>
         </tr>
       </tbody>
     </table>

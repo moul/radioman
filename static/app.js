@@ -36,6 +36,14 @@ radiomanApp.controller('PlaylistListCtrl', function($scope, $http, $routeParams)
   $http.get('/api/playlists').success(function (data) {
     $scope.playlists = data.playlists;
   });
+  $scope.makeDefault = function(playlist) {
+    var input = {
+      default: true
+    };
+    $http.patch('/api/playlists/' + playlist.name, input).success(function (data) {
+      console.log(data);
+    });
+  };
 });
 
 radiomanApp.controller('PlaylistViewCtrl', function($scope, $http, $routeParams) {
