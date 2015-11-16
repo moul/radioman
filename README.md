@@ -6,6 +6,12 @@
 
 Web radio solution using Liquidsoap and Icecast
 
+## Screenshots
+
+:warning: **WORK IN PROGRESS** :warning:
+
+![](https://raw.githubusercontent.com/moul/radioman/master/assets/screenshot-001.png)
+
 ## Run using Docker
 
 Requires `docker` and `docker-compose`.
