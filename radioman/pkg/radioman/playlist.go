@@ -75,8 +75,11 @@ func (p *Playlist) NewLocalTrack(path string) (*Track, error) {
 }
 
 func (p *Playlist) GetTrackByPath(path string) (*Track, error) {
-	if track, found := p.Tracks[path]; found {
-		return track, nil
+	// FIXME: use a dedicated map
+	for _, track := range p.Tracks {
+		if track.Path == path {
+			return track, nil
+		}
 	}
 	return nil, fmt.Errorf("no such track")
 }
