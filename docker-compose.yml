@@ -5,10 +5,10 @@ radiomand:
   environment:
   - NO_LOCAL_PLAYLISTS=1
   volumes:
-  - $HOME/Music:$HOME/Music
+  - $HOME/Music:/home/Music
   - /etc/localtime:/etc/localtime:ro
   - ./playlists:/playlists
-  - $HOME/playlists:$HOME/playlists
+  - $HOME/playlists:/home/playlists
   - ./radioman/web:/web
   ports:
   - 4343:8000
@@ -25,9 +25,9 @@ liquidsoap:
   restart: always
   volumes:
   - ./liquidsoap:/liquidsoap
-  - $HOME/Music:$HOME/Music
+  - $HOME/Music:/home/Music
   - /etc/localtime:/etc/localtime:ro
-  - $HOME/playlists:$HOME/playlists
+  - $HOME/playlists:/home/playlists
   - ./playlists:/playlists
   links:
   # - radioman

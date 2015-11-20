@@ -182,6 +182,7 @@ func (r *Radio) StdPopulate() error {
 	// Add local directory
 	playlistsDirs := []string{"/playlists"}
 	playlistsDirs = append(playlistsDirs, path.Join(os.Getenv("HOME"), "playlists"))
+	playlistsDirs = append(playlistsDirs, path.Join("/home", "playlists"))
 	dir, err := os.Getwd()
 	if err == nil && os.Getenv("NO_LOCAL_PLAYLISTS") != "1" {
 		r.NewDirectoryPlaylist("local directory", dir)
