@@ -8,6 +8,7 @@ radiomand:
   - $HOME/Music:$HOME/Music
   - /etc/localtime:/etc/localtime:ro
   - ./playlists:/playlists
+  - $HOME/playlists:$HOME/playlists
   - ./radioman/web:/web
   ports:
   - 4343:8000
@@ -26,6 +27,7 @@ liquidsoap:
   - ./liquidsoap:/liquidsoap
   - $HOME/Music:$HOME/Music
   - /etc/localtime:/etc/localtime:ro
+  - $HOME/playlists:$HOME/playlists
   - ./playlists:/playlists
   links:
   # - radioman
