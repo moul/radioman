@@ -15,7 +15,7 @@
   </head>
   <body ng-app="radiomanApp">
     <nav class="clearfix white bg-navy">
-      <section class="container" ng-controller="ShortcutsCtrl">
+      <section class="container">
         <div class="sm-col">
           <a href="/" class="btn py1">Radioman</a>
         </div>
@@ -25,9 +25,6 @@
         <div class="sm-col-right">
           <a href="/playlist.m3u" target="_blank" class="btn py1">m3u</a>
         </div>
-        <div class="sm-col-right">
-          <a href="" ng-click="skipSong()" class="btn py1">➤➤</a>
-        </div>
         <!--
         <div class="sm-col-right">
           <a href="https://github.com/moul/radioman" class="btn py1">Fork me on Github</a>
@@ -35,8 +32,24 @@
         -->
       </section>
     </nav>
+
     <div ng-controller="MainCtrl">
       <div ng-view></div>
     </div>
+
+    <footer class="clearfix white bg-navy">
+      <section class="container center">
+        <div ng-controller="PlayerCtrl" class="center flex">
+          <div class="sm-col">
+            <audio audioplayer controls preload="none">
+              <source src="{{endpoint.source | trustUrl}}" ng-repeat="endpoint in endpoints" />
+            </audio>
+          </div>
+          <div class="sm-col">
+            <a href="" ng-click="skipSong()" class="btn py1">➤➤</a>
+          </div>
+        </div>
+      </section>
+    </footer>
   </body>
 </html>

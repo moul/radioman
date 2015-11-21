@@ -44,6 +44,7 @@ func main() {
 	router.GET("/api/playlists/:name/tracks", playlistTracksEndpoint)
 
 	router.GET("/api/radios/default", defaultRadioEndpoint)
+	router.GET("/api/radios/default/endpoints", radioEndpointsEndpoint)
 	router.POST("/api/radios/default/skip-song", radioSkipSongEndpoint)
 	router.POST("/api/radios/default/play-track", radioPlayTrackEndpoint)
 	router.POST("/api/radios/default/set-next-track", radioSetNextTrackEndpoint)

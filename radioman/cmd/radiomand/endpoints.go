@@ -154,6 +154,33 @@ func playlistTracksEndpoint(c *gin.Context) {
 	})
 }
 
+type Endpoint struct {
+	Source string `json:"source"`
+}
+
+func radioEndpointsEndpoint(c *gin.Context) {
+	host := strings.Split(c.Request.Host, ":")[0]
+	mountpoints := []string{
+		"mp3-192",
+		"aac-192",
+		"vorbis",
+		"aac-128",
+		"mp3-128",
+	}
+
+	endpoints := []Endpoint{}
+	for _, mountpoint := range mountpoints {
+		endpoint := Endpoint{
+			Source: fmt.Sprintf("http://%s:4444/%s", host, mountpoint),
+		}
+		endpoints = append(endpoints, endpoint)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"endpoints": endpoints,
+	})
+}
+
 func m3uPlaylistEndpoint(c *gin.Context) {
 	host := strings.Split(c.Request.Host, ":")[0]
 	mountpoints := []string{

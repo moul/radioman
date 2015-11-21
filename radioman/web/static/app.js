@@ -7,7 +7,10 @@ radiomanApp.controller('MainCtrl', function($scope, $route, $routeParams, $locat
   $scope.basehref = document.location.protocol + '//' + document.location.host;
 });
 
-radiomanApp.controller('ShortcutsCtrl', function($scope, $http) {
+radiomanApp.controller('PlayerCtrl', function($scope, $http) {
+  $http.get('/api/radios/default/endpoints').success(function (data) {
+    $scope.endpoints = data.endpoints;
+  });
   $scope.skipSong = function() {
     $http.post('/api/radios/default/skip-song', {}).success(function (data) {
       console.log('song skipped');
@@ -99,6 +102,12 @@ radiomanApp.filter('dictToArray', function() {
     });
   };
 });
+
+radiomanApp.filter('trustUrl', ['$sce', function($sce) {
+  return function (url) {
+    return $sce.trustAsResourceUrl(url);
+  };
+}]);
 
 radiomanApp.filter('trackDuration', function() {
   return function (duration) {
