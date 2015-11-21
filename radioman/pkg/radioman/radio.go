@@ -175,10 +175,6 @@ func (r *Radio) StdPopulate() error {
 	// Add a dummy manual playlist
 	r.NewPlaylist("manual")
 
-	// Add 'standard' music paths
-	r.NewDirectoryPlaylist("iTunes Music", "~/Music/iTunes/iTunes Media/Music/")
-	r.NewDirectoryPlaylist("iTunes Podcasts", "~/Music/iTunes/iTunes Media/Podcasts/")
-
 	// Add local directory
 	playlistsDirs := []string{"/playlists"}
 	playlistsDirs = append(playlistsDirs, path.Join(os.Getenv("HOME"), "playlists"))
@@ -223,6 +219,12 @@ func (r *Radio) StdPopulate() error {
 			}
 		}
 	}
+
+	// Add 'standard' music paths
+	r.NewDirectoryPlaylist("iTunes Music", "~/Music/iTunes/iTunes Media/Music/")
+	r.NewDirectoryPlaylist("iTunes Podcasts", "~/Music/iTunes/iTunes Media/Podcasts/")
+	r.NewDirectoryPlaylist("iTunes Music", "/home/Music/iTunes/iTunes Media/Music/")
+	r.NewDirectoryPlaylist("iTunes Podcasts", "/home/Music/iTunes/iTunes Media/Podcasts/")
 
 	return nil
 }
