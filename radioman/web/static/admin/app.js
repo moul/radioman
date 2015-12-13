@@ -21,19 +21,19 @@ radiomanApp.controller('PlayerCtrl', function($scope, $http) {
 radiomanApp.config(function($routeProvider, $locationProvider) {
   $routeProvider
     .when('/playlists', {
-      templateUrl: '/static/playlists.html',
+      templateUrl: '/static/admin/playlists.html',
       controller: 'PlaylistListCtrl'
     })
     .when('/playlists/:name', {
-      templateUrl: '/static/playlist.html',
+      templateUrl: '/static/admin/playlist.html',
       controller: 'PlaylistViewCtrl'
     })
     .when('/tracks/:name', {
-      templateUrl: '/static/track.html',
+      templateUrl: '/static/admin/track.html',
       controller: 'TrackViewCtrl'
     })
     .otherwise({
-      templateUrl: '/static/home.html',
+      templateUrl: '/static/admin/home.html',
       controller: 'HomeCtrl'
     });
   // $locationProvider.html5Mode(true);

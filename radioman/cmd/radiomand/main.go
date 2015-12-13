@@ -35,6 +35,7 @@ func main() {
 		staticPrefix = os.Getenv("WEBDIR")
 	}
 	router.StaticFile("/", path.Join(staticPrefix, "static/index.html"))
+	router.StaticFile("/admin/", path.Join(staticPrefix, "static/admin/index.html"))
 	router.Static("/static", path.Join(staticPrefix, "static"))
 	router.Static("/bower_components", path.Join(staticPrefix, "bower_components"))
 
