@@ -1,6 +1,5 @@
 radiomand:
   build: ./radioman
-  name: radiomand
   restart: always
   environment:
   - NO_LOCAL_PLAYLISTS=1
@@ -17,7 +16,6 @@ radiomand:
 
 liquidsoap:
   image: moul/liquidsoap
-  name: liquidsoap
   volumes:
   # command: /supervisor.sh liquidsoap -v --debug /liquidsoap/main.liq
   command: liquidsoap -v --debug /liquidsoap/main.liq
@@ -39,7 +37,6 @@ liquidsoap:
 
 icecast:
   image: moul/icecast
-  name: icecast
   restart: always
   volumes:
   - /etc/localtime:/etc/localtime:ro
