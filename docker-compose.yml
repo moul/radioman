@@ -28,11 +28,11 @@ liquidsoap:
   - $HOME/playlists:/home/playlists
   - ./playlists:/playlists
   links:
-  # - radioman
   - icecast
   ports:
   - 2300:2300
   environment:
+  - RADIOMAND_URL
   - ICECAST_SOURCE_PASSWORD
 
 icecast:

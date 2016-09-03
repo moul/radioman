@@ -21,7 +21,7 @@ set("decoding.buffer_length", 10.)
 
 
 # Telnet variables
-radiomand_url = interactive.string("radiomand_url", "http://127.0.0.1:8000")
+radiomand_url = interactive.string("radiomand_url", getenv("RADIOMAND_URL"))
 
 
 # Helpers
