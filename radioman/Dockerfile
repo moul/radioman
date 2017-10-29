@@ -1,4 +1,4 @@
-FROM golang:1.5
+FROM golang:1.9
 
 
 # Configure environment and rebuild stdlib
