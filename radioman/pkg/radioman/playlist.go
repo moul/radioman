@@ -9,7 +9,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/kr/fs"
-	"github.com/wtolson/go-taglib"
+	taglib "github.com/wtolson/go-taglib"
 )
 
 type Playlist struct {
@@ -85,6 +85,9 @@ func (p *Playlist) GetTrackByPath(path string) (*Track, error) {
 }
 
 func (p *Playlist) GetRandomTrack() (*Track, error) {
+	if p == nil {
+		return nil, fmt.Errorf("playlist is nil")
+	}
 	if p.Status != "ready" {
 		return nil, fmt.Errorf("playlist is not ready")
 	}
