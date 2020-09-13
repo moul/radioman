@@ -5,7 +5,7 @@
 set("log.file", false)
 #set("log.file.path", "...")
 set("log.stdout", true)
-set("log.level", 4)
+set("log.level", 3)
 
 
 # Configure Telnet server

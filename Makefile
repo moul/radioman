@@ -16,6 +16,10 @@ all: build
 install:
 	cd radioman && go install ./cmd/radiomand
 
+.PHONY: liquidsoap-telnet
+liquidsoap-telnet:
+	nc -v localhost 2300
+
 .PHONY: docker-telnet
 docker-telnet:
 	socat readline TCP:$(DOCKER_HOST_IP):2300
