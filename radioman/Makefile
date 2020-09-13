@@ -6,3 +6,6 @@ deps:
 
 tidy:
 	go mod tidy
+
+docker.build:
+	docker build -t moul/radioman .
