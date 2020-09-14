@@ -12,44 +12,33 @@ RADIOMAND := radiomand-$(shell uname -s)-$(shell uname -m)
 
 all: build
 
+.PHONY: install
+install:
+	cd radioman && go install ./cmd/radiomand
 
-.PHONY: build
-build: $(RADIOMAND)
-
-
-.PHONY: godep-save
-godep-save:
-	cd radioman; godep save $(shell go list ./...| grep -v vendor)
-
+.PHONY: liquidsoap-telnet
+liquidsoap-telnet:
+	nc -v localhost 2300
 
 .PHONY: docker-telnet
 docker-telnet:
 	socat readline TCP:$(DOCKER_HOST_IP):2300
 
-
 .PHONY: test-liquidsoap-config
 test-liquidsoap-config:
 	docker run -it -u liquidsoap --rm -v "$(PWD)/liquidsoap:/liquidsoap" moul/liquidsoap liquidsoap --verbose --debug /liquidsoap/main.liq
-
 
 .PHONY: docker-exec-liquidsoap
 docker-exec-liquidsoap:
 	docker exec -it `docker-compose ps -q liquidsoap` /bin/bash
 
-
 .PHONY: docker-exec-radiomand
 docker-exec-radiomand:
 	docker exec -it `docker-compose ps -q radiomand` /bin/bash
 
-
 .PHONY: docker-exec-icecast
 docker-exec-icecast:
 	docker exec -it `docker-compose ps -q icecast` /bin/bash
-
-
-$(RADIOMAND): $(SOURCES)
-	$(GO) build -o $@ ./radioman/cmd/radiomand
-
 
 .PHONY: compose
 compose:
@@ -57,14 +46,7 @@ compose:
 	$(DOCKER_COMPOSE) kill
 	$(DOCKER_COMPOSE) rm -fv
 	$(COMPOSE_ENV) $(DOCKER_COMPOSE) up -d $(COMPOSE_TARGET)
-	$(DOCKER_COMPOSE) logs $(COMPOSE_TARGET)
-
-
-.PHONY: gin
-gin:
-	$(GO) get github.com/codegangsta/gin
-	cd radioman/cmd/radiomand; WEBDIR=../../web $(GOENV) gin --immediate --port=$(PORT) ./main.go
-
+	$(DOCKER_COMPOSE) logs -f $(COMPOSE_TARGET)
 
 .PHONY: clean
 clean:
@@ -72,3 +54,14 @@ clean:
 	find . -name gin-bin -delete
 	$(DOCKER_COMPOSE) kill
 	$(DOCKER_COMPOSE) rm -fv
+
+.PHONY: tidy
+tidy:
+	cd radioman; go mod tidy
+
+.PHONY: deps
+deps:
+	sudo apt install libtagc0-dev
+
+docker.build:
+	docker build -t moul/radioman ./radioman

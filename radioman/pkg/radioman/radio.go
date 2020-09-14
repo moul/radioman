@@ -87,6 +87,9 @@ func NewRadio(name string) *Radio {
 }
 
 func (r *Radio) InitTelnet() error {
+	if os.Getenv("LIQUIDSOAP_PORT_2300_TCP") == "" {
+		return fmt.Errorf("missing LIQUIDSOAP_PORT_2300_TCP=tcp://1.2.3.4:5678")
+	}
 	liquidsoapAddr := strings.Split(strings.Replace(os.Getenv("LIQUIDSOAP_PORT_2300_TCP"), "tcp://", "", -1), ":")
 	liquidsoapHost := liquidsoapAddr[0]
 	liquidsoapPort, _ := strconv.Atoi(liquidsoapAddr[1])
