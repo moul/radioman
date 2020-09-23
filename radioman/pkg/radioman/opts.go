@@ -3,10 +3,12 @@ package radioman
 import "go.uber.org/zap"
 
 type Opts struct {
-	BindAddr       string
-	Verbose        bool
-	Logger         *zap.Logger
-	LiquidsoapAddr string
+	BindAddr        string
+	Verbose         bool
+	Logger          *zap.Logger
+	LiquidsoapAddr  string
+	RadioName       string
+	DefaultPlaylist string
 }
 
 func NewOpts() Opts {

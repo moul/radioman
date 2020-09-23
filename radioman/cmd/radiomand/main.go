@@ -52,7 +52,7 @@ func run(args []string) error {
 				return fmt.Errorf("radioman.New: %w", err)
 			}
 
-			err = man.Start()
+			err = man.Run()
 			if err != nil {
 				return fmt.Errorf("radioman.Start: %w", err)
 			}

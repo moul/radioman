@@ -1,22 +1,51 @@
 package radioman
 
 import (
+	"context"
+	"fmt"
 	"time"
 
-	"moul.io/radioman/radioman/pkg/liquidsoap"
+	"go.uber.org/zap"
+	"moul.io/godev"
 )
 
-type Radio struct {
-	Name             string    `json:"name"`
-	DefaultPlaylist  *Playlist `json:"default_playlist"`
-	CreationDate     time.Time `json:"creation_date"`
-	ModificationDate time.Time `json:"modification_date"`
-	Stats            struct {
-		Playlists int `json:"playlists"`
-		Tracks    int `json:"tracks"`
-	} `json:"stats"`
-	Playlists []*Playlist        `json:"-"`
-	Telnet    *liquidsoap.Telnet `json:"-"`
+func (r *Radio) updatePlaylistsRoutine(ctx context.Context) error {
+	for {
+		started := time.Now()
+		r.logger.Debug("refreshing playlists", zap.Int("playlists", len(r.playlists)))
+		tracksSum := 0
+		for _, playlist := range r.playlists {
+			fmt.Println(godev.PrettyJSON(playlist))
+			// automatically update playlist
+			if err := playlist.AutoUpdate(); err != nil {
+				playlist.Status = "error"
+				r.logger.Warn("failed to update playlist", zap.Error(err))
+				continue
+			}
+
+			tracksSum += playlist.Stats.Tracks
+
+			// Set default playlist if needed
+			if r.config.defaultPlaylist == nil && playlist.Status == "ready" {
+				r.config.defaultPlaylist = playlist
+				// when getting a new playlist for the first time, a skipsong will act like the first "play"
+				r.SkipSong()
+			}
+		}
+		r.Stats.Tracks = tracksSum
+		r.logger.Info("refreshed playlists", zap.Duration("duration", time.Since(started)), zap.Int("tracks", tracksSum))
+
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-time.After(5 * time.Minute):
+		}
+	}
+}
+
+func (r *Radio) SkipSong() error {
+	_, err := r.telnet.Command("manager.skip")
+	return err
 }
 
 /*
@@ -70,14 +99,6 @@ func (r *Radio) GetTrackByHash(hash string) (*Track, error) {
 	return nil, fmt.Errorf("no such track")
 }
 
-func NewRadio(name string) *Radio {
-	return &Radio{
-		Name:             name,
-		Playlists:        make([]*Playlist, 0),
-		CreationDate:     time.Now(),
-		ModificationDate: time.Now(),
-	}
-}
 
 func (r *Radio) InitTelnet() error {
 	if os.Getenv("LIQUIDSOAP_PORT_2300_TCP") == "" {
@@ -100,19 +121,6 @@ func (r *Radio) InitTelnet() error {
 	return err
 }
 
-func (r *Radio) SkipSong() error {
-	if err := r.Telnet.Open(); err != nil {
-		return err
-	}
-	defer r.Telnet.Close()
-
-	if _, err := r.Telnet.Command("manager.skip"); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (r *Radio) PlayTrack(track *Track) error {
 	if err := r.Telnet.Open(); err != nil {
 		return err
@@ -126,39 +134,6 @@ func (r *Radio) PlayTrack(track *Track) error {
 	return nil
 }
 
-func (r *Radio) UpdatePlaylistsRoutine() {
-	for {
-		defaultUpdated := false
-		tracksSum := 0
-
-		for _, playlist := range r.Playlists {
-			// automatically update playlist
-			if err := playlist.AutoUpdate(); err != nil {
-				playlist.Status = "error"
-				logrus.Warnf("Failed to update playlist: %v", err)
-				continue
-			}
-
-			tracksSum += playlist.Stats.Tracks
-
-			// Set default playlist if needed
-			if r.DefaultPlaylist == nil && playlist.Status == "ready" {
-				r.DefaultPlaylist = playlist
-				defaultUpdated = true
-			}
-		}
-
-		r.Stats.Tracks = tracksSum
-
-		// when getting a new playlist for the first time, a skipsong will act like the first "play"
-		if defaultUpdated {
-			r.SkipSong()
-		}
-
-		// sleep 5 minutes before next run
-		time.Sleep(5 * time.Minute)
-	}
-}
 
 func (r *Radio) Init() error {
 	if err := r.InitTelnet(); err != nil {
