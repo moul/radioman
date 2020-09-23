@@ -5,49 +5,42 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/Sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 type Telnet struct {
-	Host string
-	Port int
-	Conn net.Conn
+	addr   string
+	conn   net.Conn
+	logger *zap.Logger
 }
 
-func NewTelnet(host string, port int) *Telnet {
+func NewTelnet(addr string, logger *zap.Logger) *Telnet {
 	return &Telnet{
-		Host: host,
-		Port: port,
+		addr:   addr,
+		logger: logger.Named("liq"),
 	}
-}
-
-func (t *Telnet) Dest() string {
-	return fmt.Sprintf("%s:%d", t.Host, t.Port)
 }
 
 func (t *Telnet) Open() error {
-	logrus.Debugf("Connecting to Liquidsoap telnet: %s:%d", t.Host, t.Port)
-	conn, err := net.Dial("tcp", t.Dest())
-	if err != nil {
-		return err
-	}
-	t.Conn = conn
-	return nil
+	t.logger.Debug("connecting using telnet", zap.String("addr", t.addr))
+	var err error
+	t.conn, err = net.Dial("tcp", t.addr)
+	return err
 }
 
 func (t *Telnet) Close() {
-	if t.Conn != nil {
-		t.Conn.Close()
+	if t.conn != nil {
+		t.conn.Close()
 	}
 }
 
 func (t *Telnet) Command(command string) (string, error) {
-	logrus.Debugf("Sending to telnet: %q", command)
-	fmt.Fprintf(t.Conn, "%s\n", command)
-	message, err := bufio.NewReader(t.Conn).ReadString('\n')
+	t.logger.Debug("send command", zap.String("command", command))
+	fmt.Fprintf(t.conn, "%s\n", command)
+	message, err := bufio.NewReader(t.conn).ReadString('\n')
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("telnet liq error: %w", err)
 	}
-	logrus.Debugf("Received from telnet: %q", message)
+	t.logger.Debug("received", zap.String("message", message))
 	return message, nil
 }

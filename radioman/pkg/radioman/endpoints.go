@@ -1,14 +1,6 @@
-package main
+package radioman
 
-import (
-	"fmt"
-	"net/http"
-	"strings"
-
-	"github.com/Sirupsen/logrus"
-	"github.com/gin-gonic/gin"
-)
-
+/*
 func getNextSongEndpoint(c *gin.Context) {
 	track, err := Radio.GetNextSong()
 	if err != nil {
@@ -199,3 +191,4 @@ func m3uPlaylistEndpoint(c *gin.Context) {
 	c.Header("Content-Type", "audio/x-mpegurl")
 	c.String(http.StatusOK, strings.Join(links, "\n"))
 }
+*/

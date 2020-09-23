@@ -1,17 +1,9 @@
 package radioman
 
 import (
-	"fmt"
-	"os"
-	"path"
-	"path/filepath"
-	"strconv"
-	"strings"
 	"time"
 
-	"github.com/Sirupsen/logrus"
-	"github.com/kr/fs"
-	"github.com/moul/radioman/radioman/pkg/liquidsoap"
+	"moul.io/radioman/radioman/pkg/liquidsoap"
 )
 
 type Radio struct {
@@ -27,6 +19,7 @@ type Radio struct {
 	Telnet    *liquidsoap.Telnet `json:"-"`
 }
 
+/*
 func (r *Radio) NewPlaylist(name string) (*Playlist, error) {
 	logrus.Infof("New playlist %q", name)
 	playlist := &Playlist{
@@ -252,3 +245,4 @@ func (r *Radio) GetNextSong() (*Track, error) {
 
 	return nil, fmt.Errorf("no such next song, are your playlists empty ?")
 }
+*/

@@ -1,9 +1,9 @@
 package radioman
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"time"
+
+	"moul.io/u"
 )
 
 type Track struct {
@@ -37,10 +37,8 @@ func NewTrack(path string) (*Track, error) {
 		Status:           "new",
 		CreationDate:     time.Now(),
 		ModificationDate: time.Now(),
+		Hash:             u.Sha1Hex([]byte(path)),
 	}
-	hasher := md5.New()
-	hasher.Write([]byte(path))
-	track.Hash = hex.EncodeToString(hasher.Sum(nil))
 	return &track, nil
 }
 
