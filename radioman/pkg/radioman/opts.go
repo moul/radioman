@@ -3,6 +3,7 @@ package radioman
 import "go.uber.org/zap"
 
 type Opts struct {
+	URL             string // self URL
 	BindAddr        string
 	Verbose         bool
 	Logger          *zap.Logger
@@ -14,7 +15,9 @@ type Opts struct {
 func NewOpts() Opts {
 	return Opts{
 		BindAddr:       ":8042",
-		LiquidsoapAddr: "tcp://127.0.0.1:2300",
+		LiquidsoapAddr: "127.0.0.1:2300",
+		URL:            "http://localhost:8042",
+		RadioName:      "RadioMan",
 		Verbose:        false,
 		Logger:         nil,
 	}

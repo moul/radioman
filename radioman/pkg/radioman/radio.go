@@ -3,10 +3,16 @@ package radioman
 import (
 	"context"
 	"fmt"
+	"os"
+	"path"
+	"path/filepath"
 	"time"
 
+	"github.com/Sirupsen/logrus"
+	"github.com/kr/fs"
 	"go.uber.org/zap"
 	"moul.io/godev"
+	"moul.io/u"
 )
 
 func (r *Radio) updatePlaylistsRoutine(ctx context.Context) error {
@@ -48,101 +54,7 @@ func (r *Radio) SkipSong() error {
 	return err
 }
 
-/*
-func (r *Radio) NewPlaylist(name string) (*Playlist, error) {
-	logrus.Infof("New playlist %q", name)
-	playlist := &Playlist{
-		Name:             name,
-		CreationDate:     time.Now(),
-		ModificationDate: time.Now(),
-		Tracks:           make(map[string]*Track, 0),
-		Status:           "new",
-	}
-	r.Playlists = append(r.Playlists, playlist)
-	r.Stats.Playlists++
-	return playlist, nil
-}
-
-func (r *Radio) NewDirectoryPlaylist(name string, path string) (*Playlist, error) {
-	if _, err := os.Stat(path); err != nil {
-		return nil, err
-	}
-
-	playlist, err := r.NewPlaylist(name)
-	if err != nil {
-		return nil, err
-	}
-	expandedPath, err := expandUser(path)
-	if err != nil {
-		return nil, err
-	}
-	playlist.Path = expandedPath
-	return playlist, nil
-}
-
-func (r *Radio) GetPlaylistByName(name string) (*Playlist, error) {
-	for _, playlist := range r.Playlists {
-		if playlist.Name == name {
-			return playlist, nil
-		}
-	}
-	return nil, fmt.Errorf("no such playlist")
-}
-
-func (r *Radio) GetTrackByHash(hash string) (*Track, error) {
-	// FIXME: do not iterate over playlists, use a global map instead
-	for _, playlist := range r.Playlists {
-		if track, found := playlist.Tracks[hash]; found {
-			return track, nil
-		}
-	}
-	return nil, fmt.Errorf("no such track")
-}
-
-
-func (r *Radio) InitTelnet() error {
-	if os.Getenv("LIQUIDSOAP_PORT_2300_TCP") == "" {
-		return fmt.Errorf("missing LIQUIDSOAP_PORT_2300_TCP=tcp://1.2.3.4:5678")
-	}
-	liquidsoapAddr := strings.Split(strings.Replace(os.Getenv("LIQUIDSOAP_PORT_2300_TCP"), "tcp://", "", -1), ":")
-	liquidsoapHost := liquidsoapAddr[0]
-	liquidsoapPort, _ := strconv.Atoi(liquidsoapAddr[1])
-
-	r.Telnet = liquidsoap.NewTelnet(liquidsoapHost, liquidsoapPort)
-
-	if err := r.Telnet.Open(); err != nil {
-		logrus.Fatalf("Failed to connect to liquidsoap")
-	}
-	defer r.Telnet.Close()
-
-	radiomandHost := strings.Split(r.Telnet.Conn.LocalAddr().String(), ":")[0]
-	_, err := r.Telnet.Command(fmt.Sprintf(`var.set radiomand_url = "http://%s:%d"`, radiomandHost, 8000))
-
-	return err
-}
-
-func (r *Radio) PlayTrack(track *Track) error {
-	if err := r.Telnet.Open(); err != nil {
-		return err
-	}
-	defer r.Telnet.Close()
-
-	if _, err := r.Telnet.Command(fmt.Sprintf("request.push %s", track.Path)); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-
-func (r *Radio) Init() error {
-	if err := r.InitTelnet(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (r *Radio) StdPopulate() error {
+func (r *Radio) stdPopulate() error {
 	// Add a dummy manual playlist
 	r.NewPlaylist("manual")
 
@@ -199,6 +111,74 @@ func (r *Radio) StdPopulate() error {
 
 	return nil
 }
+
+func (r *Radio) NewPlaylist(name string) (*Playlist, error) {
+	logrus.Infof("New playlist %q", name)
+	playlist := &Playlist{
+		Name:             name,
+		CreationDate:     time.Now(),
+		ModificationDate: time.Now(),
+		Tracks:           make(map[string]*Track, 0),
+		Status:           "new",
+	}
+	r.playlists = append(r.playlists, playlist)
+	r.Stats.Playlists++
+	return playlist, nil
+}
+
+func (r *Radio) NewDirectoryPlaylist(name string, path string) (*Playlist, error) {
+	if _, err := os.Stat(path); err != nil {
+		return nil, err
+	}
+
+	playlist, err := r.NewPlaylist(name)
+	if err != nil {
+		return nil, err
+	}
+	expandedPath, err := u.ExpandUser(path)
+	if err != nil {
+		return nil, err
+	}
+	playlist.Path = expandedPath
+	return playlist, nil
+}
+
+/*
+
+func (r *Radio) GetPlaylistByName(name string) (*Playlist, error) {
+	for _, playlist := range r.Playlists {
+		if playlist.Name == name {
+			return playlist, nil
+		}
+	}
+	return nil, fmt.Errorf("no such playlist")
+}
+
+func (r *Radio) GetTrackByHash(hash string) (*Track, error) {
+	// FIXME: do not iterate over playlists, use a global map instead
+	for _, playlist := range r.Playlists {
+		if track, found := playlist.Tracks[hash]; found {
+			return track, nil
+		}
+	}
+	return nil, fmt.Errorf("no such track")
+}
+
+
+func (r *Radio) PlayTrack(track *Track) error {
+	if err := r.Telnet.Open(); err != nil {
+		return err
+	}
+	defer r.Telnet.Close()
+
+	if _, err := r.Telnet.Command(fmt.Sprintf("request.push %s", track.Path)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+
 
 func (r *Radio) GetNextSong() (*Track, error) {
 	// FIXME: shuffle playlist instead of getting a random track

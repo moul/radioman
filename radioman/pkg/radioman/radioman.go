@@ -42,6 +42,14 @@ func New(opts Opts) (*Radio, error) {
 		playlists: make([]*Playlist, 0),
 	}
 
+	// populate
+	{
+		err := r.stdPopulate()
+		if err != nil {
+			return nil, fmt.Errorf("populate error: %w", err)
+		}
+	}
+
 	// web server
 	{
 		server := r.server()
@@ -83,16 +91,30 @@ func New(opts Opts) (*Radio, error) {
 		r.workers.Add(run.SignalHandler(ctx, syscall.SIGKILL))
 	}
 
-	return &r, nil
-	/*
+	// telnet
+	{
+		ctx := context.Background()
+		r.workers.Add(func() error {
+			r.logger.Info("connecting to liquidsoap telnet server", zap.String("addr", opts.LiquidsoapAddr))
+			// init telnet
+			r.telnet = liquidsoap.NewTelnet(opts.LiquidsoapAddr, opts.Logger)
 
-		if err := Radio.Init(); err != nil {
-			logrus.Fatalf("Failed to initialize the radio: %v", err)
-		}
-		if err := Radio.StdPopulate(); err != nil {
-			logrus.Fatalf("Failed to populate the radio: %v", err)
-		}
-	*/
+			// send intro message on telnet
+			_, err := r.telnet.Command(fmt.Sprintf(`var.set radiomand_url = %q`, opts.URL))
+			if err != nil {
+				return fmt.Errorf("liquidsoap error: %w", err)
+			}
+
+			// start a goroutine that send ping?
+			<-ctx.Done()
+			return nil
+		}, func(err error) {
+			// send bye message
+			// close
+		})
+	}
+
+	return &r, nil
 }
 
 func (r *Radio) Run() error {
