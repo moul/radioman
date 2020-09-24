@@ -11,7 +11,6 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/kr/fs"
 	"go.uber.org/zap"
-	"moul.io/godev"
 	"moul.io/u"
 )
 
@@ -21,7 +20,6 @@ func (r *Radio) updatePlaylistsRoutine(ctx context.Context) error {
 		r.logger.Debug("refreshing playlists", zap.Int("playlists", len(r.playlists)))
 		tracksSum := 0
 		for _, playlist := range r.playlists {
-			fmt.Println(godev.PrettyJSON(playlist))
 			// automatically update playlist
 			if err := playlist.AutoUpdate(); err != nil {
 				playlist.Status = "error"
