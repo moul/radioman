@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/kr/fs"
 	"go.uber.org/zap"
 	"moul.io/u"
@@ -74,7 +73,7 @@ func (r *Radio) stdPopulate() error {
 				continue
 			}
 			if err := walker.Err(); err != nil {
-				logrus.Warnf("walker error: %v", err)
+				r.logger.Warn("walker error", zap.Error(err))
 				continue
 			}
 
@@ -85,17 +84,12 @@ func (r *Radio) stdPopulate() error {
 			} else {
 				realpath, err = filepath.EvalSymlinks(walker.Path())
 				if err != nil {
-					logrus.Warnf("filepath.EvalSymlinks error for %q: %v", walker.Path(), err)
+					r.logger.Warn("eval symlinks failed", zap.String("path", walker.Path()), zap.Error(err))
 					continue
 				}
 			}
 
-			stat, err := os.Stat(realpath)
-			if err != nil {
-				logrus.Warnf("os.Stat error: %v", err)
-				continue
-			}
-			if stat.IsDir() {
+			if u.DirExists(realpath) {
 				r.NewDirectoryPlaylist(fmt.Sprintf("playlist: %s", walker.Stat().Name()), realpath)
 			}
 		}
@@ -111,13 +105,14 @@ func (r *Radio) stdPopulate() error {
 }
 
 func (r *Radio) NewPlaylist(name string) (*Playlist, error) {
-	logrus.Infof("New playlist %q", name)
+	r.logger.Info("new playlist", zap.String("name", name))
 	playlist := &Playlist{
 		Name:             name,
 		CreationDate:     time.Now(),
 		ModificationDate: time.Now(),
 		Tracks:           make(map[string]*Track, 0),
 		Status:           "new",
+		logger:           r.logger.Named("pl"),
 	}
 	r.playlists = append(r.playlists, playlist)
 	r.Stats.Playlists++
