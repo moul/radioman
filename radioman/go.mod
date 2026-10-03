@@ -11,7 +11,7 @@ require (
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/stretchr/testify v1.6.1 // indirect
 	github.com/wtolson/go-taglib v0.0.0-20151114194754-6e68349ff94e
-	golang.org/x/net v0.0.0-20150824032521-7654728e3819 // indirect
+	golang.org/x/net v0.7.0 // indirect
 	gopkg.in/bluesuncorp/validator.v5 v5.10.4-0.20150924114428-d5acf1dac437 // indirect
 	gopkg.in/go-playground/validator.v5 v5.10.3 // indirect
 )
