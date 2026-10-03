@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"path"
 	"strings"
 	"time"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/kr/fs"
 	taglib "github.com/wtolson/go-taglib"
+	"go.uber.org/zap"
 )
 
 type Playlist struct {
@@ -22,6 +23,9 @@ type Playlist struct {
 		Tracks int `json:"tracks"`
 	} `json:"stats"`
 	Tracks map[string]*Track `json:"-"`
+
+	// internal
+	logger *zap.Logger
 }
 
 func (p *Playlist) NewLocalTrack(path string) (*Track, error) {
@@ -50,7 +54,7 @@ func (p *Playlist) NewLocalTrack(path string) (*Track, error) {
 
 	file, err := taglib.Read(path)
 	if err != nil {
-		logrus.Warnf("Failed to read taglib %q: %v", path, err)
+		p.logger.Warn("failed to read taglib", zap.String("path", path), zap.Error(err))
 		track.Status = "error"
 		track.Title = track.FileName
 	} else {
@@ -119,12 +123,12 @@ func (p *Playlist) GetRandomTrack() (*Track, error) {
 
 func (p *Playlist) AutoUpdate() error {
 	if p.Path == "" {
-		logrus.Debugf("Playlist %q is not dynamic, skipping update", p.Name)
+		p.logger.Debug("playlist is not dynamic, skipping update", zap.String("name", p.Name))
 		return nil
 	}
 
 	// if we are here, the playlist is based on local file system
-	logrus.Infof("Updating playlist %q", p.Name)
+	p.logger.Info("updating playlist", zap.String("name", p.Name))
 
 	p.Status = "updating"
 
@@ -132,7 +136,7 @@ func (p *Playlist) AutoUpdate() error {
 
 	for walker.Step() {
 		if err := walker.Err(); err != nil {
-			logrus.Warnf("walker error: %v", err)
+			p.logger.Warn("walker error", zap.Error(err))
 			continue
 		}
 		stat := walker.Stat()
@@ -143,8 +147,14 @@ func (p *Playlist) AutoUpdate() error {
 				walker.SkipDir()
 			}
 		} else {
-			switch stat.Name() {
-			case ".DS_Store":
+			name := stat.Name()
+			switch name {
+			case ".DS_Store", "Dockerfile", ".dockerignore", ".gitignore", "LICENSE", "Makefile":
+				continue
+			}
+			switch ext := strings.ToLower(path.Ext(name)); ext {
+			case ".json", ".sh", ".png", ".html", ".ico", ".css", ".js", ".go",
+				".md", ".yml", ".yaml", ".liq", ".mod", ".sum":
 				continue
 			}
 
@@ -152,7 +162,7 @@ func (p *Playlist) AutoUpdate() error {
 		}
 	}
 
-	logrus.Infof("Playlist %q updated, %d tracks", p.Name, len(p.Tracks))
+	p.logger.Info("playlist has been updated", zap.String("name", p.Name), zap.Int("tracks", len(p.Tracks)))
 	if p.Stats.Tracks > 0 {
 		p.Status = "ready"
 	} else {

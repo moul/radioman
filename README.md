@@ -1,6 +1,6 @@
 # :musical_note: radioman
 
-[![GoDoc](https://godoc.org/github.com/moul/radioman/radioman?status.svg)](https://godoc.org/github.com/moul/radioman/radioman)
+[![GoDoc](https://godoc.org/moul.io/radioman?status.svg)](https://godoc.org/moul.io/radioman/radioman)
 
 ![Logo](https://raw.githubusercontent.com/moul/radioman/master/radioman/web/static/radioman.png)
 
